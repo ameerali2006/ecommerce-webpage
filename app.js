@@ -6,7 +6,7 @@ const session=require('express-session')
 const db = require('./config/db');
 const userRouter = require('./routes/userRouter');
 const passport = require('./config/passport');
-const adminRouter = require('.routes/adminRouter');
+const adminRouter = require('./routes/adminRouter');
 db()
 
 app.use(express.json())
