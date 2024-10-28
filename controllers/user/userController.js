@@ -6,7 +6,14 @@ const bcrypt = require('bcrypt');
 
 const loadHomepage= async (req,res)=>{
     try {
-        return res.render("home")
+        const user = req.session.user
+        if(user){
+            const userData=await User.findOne({_id:user})
+            res.render('home',{user:userData})
+        }else{
+            return res.render('home')
+        }
+        
     } catch (error) {
         console.log('home page is not found');
         res.status(500).send("server error")
@@ -185,8 +192,67 @@ const resendOtp =async (req,res)=>{
     }
 
 }
- 
 
+
+const loadLogin=async(req,res)=>{
+    try {
+        if(!req.session.user){
+            return res.render('login')
+        }else{
+            res.redirect('/')
+        }
+    } catch (error) {
+        res.redirect('/pageNotFound')
+        
+    }
+
+}
+
+const login=async (req,res)=>{
+    try {
+        const{email,password}=req.body
+
+        const findUser=await User.findOne({isAdmin:0,email:email})
+        if(!findUser){
+            return res.render('login',{message:'User not Found'})
+
+        }
+        if(findUser.isBlocked){
+            return res.render('login',{message:'User is block By admin'})
+        }
+        const passwordMatch= await bcrypt.compare(password, findUser.password)
+        if(!passwordMatch){
+            return res.render('login',{message:'incorrect Pssword'})
+
+        }
+        req.session.user=findUser._id;
+        res.redirect('/')
+
+
+
+    } catch (error) {
+        console.error('login errror',error)
+        res.render('login',{message:'login failed, please try again'})
+        
+    }
+
+}
+ 
+const logout=async (req,res)=>{
+    try {
+        req.session.destroy((err)=>{
+            if(err){
+                console.log('session destruction error',err.message)
+                return res.redirect('/pageNotFound')
+            }
+            return res.redirect('login')
+        })
+    } catch (error) {
+        console.log('logout error',error);
+        res.redirect('/pageNotFound')
+        
+    }
+}
 
 
  
@@ -200,5 +266,8 @@ module.exports={
     loadSignup,
     signup,
     verifyOtp,
-    resendOtp
+    resendOtp,
+    loadLogin,
+    login,
+    logout
 }
