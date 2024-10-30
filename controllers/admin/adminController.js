@@ -63,7 +63,7 @@ const logout= async (req,res)=>{
                 console.log('error destroying session',err)
                 return res.redirect('/pageerror')
             }
-            res.redirect('admin/login')
+            res.redirect('/admin/login')
         })  
     } catch (error) {
         console.log('unexpected error during logout',error);
