@@ -40,13 +40,14 @@ const productSchema= new Schema({
         type:String,
         required:true,
     },
-    procuctImage:{
+    productImage:{
         type:[String],
         required:true,
     },
     isBlock:{
         type:Boolean,
-        required:false,
+        default:false,
+        
     },
     status:{
         type:String,

@@ -13,12 +13,12 @@ const loadLogin=(req,res)=>{
     
 
     if(req.session.admin){
-        return res.redirect('/admin/dashbord')
+        return res.redirect('/admin/dashboard')
     }
     res.render('admin-login',{message:null})
 }
 
-
+ 
 const login=async(req,res)=>{
     try {
         const {email,password}=req.body;

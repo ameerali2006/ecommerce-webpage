@@ -7,7 +7,7 @@ const brandSchema= new Schema({
         type:String,
         required:true
     },
-    brandiImage:{
+    brandImage:{
         type:[String],
         required:true
     },

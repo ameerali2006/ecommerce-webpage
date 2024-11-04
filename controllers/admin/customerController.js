@@ -58,7 +58,7 @@ const customerunBlocked= async (req,res)=>{
         
         res.redirect('/admin/users')
     } catch (error) {
-        res.redirect('/pageerror')
+        res.redirect('/admin/pageerror')
         
     }
 }

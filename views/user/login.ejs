@@ -1,6 +1,16 @@
 <!DOCTYPE HTML>
 <html lang="en">
-
+<style>
+    .forgot-password-link{
+        font-size: 0.875rem;
+        color: #007bff;
+        text-decoration: none;
+    }
+    .forgot-password-link:hover{
+        color:#0056b3;
+        text-decoration: underline;
+    }
+</style>
 <head>
     <meta charset="utf-8">
     <title>Evara Dashboard</title>
@@ -74,6 +84,9 @@
                         <div class="mb-3">
                             <input class="form-control" placeholder="Password" name="password" type="password">
                         </div> <!-- form-group// -->
+                        <div class="form-group d-flex justify-content-center">
+                            <a href="/forgot-password" class="forgot-password-link ms-auto">Forgot Password</a>
+                        </div>
                         <% if (locals.message) { %>
                             <div class="alert alert-danger text-center"><%= message %></div>
                         <% } %>
