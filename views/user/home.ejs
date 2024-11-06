@@ -20,7 +20,7 @@
                     </form>
                 </div>
                 <div class="mobile-menu-wrap mobile-header-border">
-                    <div class="main-categori-wrap mobile-header-border">
+                    <!-- <div class="main-categori-wrap mobile-header-border">
                         <a class="categori-button-active-2" href="#">
                             <span class="fi-rs-apps"></span> Browse Categories
                         </a>
@@ -37,20 +37,20 @@
                                 <li><a href="shop-grid-right.html"><i class="evara-font-kite"></i>Outdoor fun</a></li>
                             </ul>
                         </div>
-                    </div>
+                    </div> -->
                     <!-- mobile menu start -->
                     <nav>
                         <ul class="mobile-menu">
                             <li class="menu-item-has-children"><span class="menu-expand"></span><a href="index.html">Home</a>
-                                <ul class="dropdown">
+                                <!-- <ul class="dropdown">
                                     <li><a href="index.html">Home 1</a></li>
                                     <li><a href="index-2.html">Home 2</a></li>
                                     <li><a href="index-3.html">Home 3</a></li>
                                     <li><a href="index-4.html">Home 4</a></li>
-                                </ul>
+                                </ul> -->
                             </li>
                             <li class="menu-item-has-children"><span class="menu-expand"></span><a href="shop-grid-right.html">shop</a>
-                                <ul class="dropdown">
+                                <!-- <ul class="dropdown">
                                     <li><a href="shop-grid-right.html">Shop Grid – Right Sidebar</a></li>
                                     <li><a href="shop-grid-left.html">Shop Grid – Left Sidebar</a></li>
                                     <li><a href="shop-list-right.html">Shop List – Right Sidebar</a></li>
@@ -68,9 +68,9 @@
                                     <li><a href="shop-cart.html">Shop – Cart</a></li>
                                     <li><a href="shop-checkout.html">Shop – Checkout</a></li>
                                     <li><a href="shop-compare.html">Shop – Compare</a></li>
-                                </ul>
+                                </ul> -->
                             </li>
-                            <li class="menu-item-has-children"><span class="menu-expand"></span><a href="#">Mega menu</a>
+                            <!-- <li class="menu-item-has-children"><span class="menu-expand"></span><a href="#">Mega menu</a>
                                 <ul class="dropdown">
                                     <li class="menu-item-has-children"><span class="menu-expand"></span><a href="#">Women's Fashion</a>
                                         <ul class="dropdown">
@@ -97,8 +97,8 @@
                                         </ul>
                                     </li>
                                 </ul>
-                            </li>
-                            <li class="menu-item-has-children"><span class="menu-expand"></span><a href="blog-category-fullwidth.html">Blog</a>
+                            </li> -->
+                            <!-- <li class="menu-item-has-children"><span class="menu-expand"></span><a href="blog-category-fullwidth.html">Blog</a>
                                 <ul class="dropdown">
                                     <li><a href="blog-category-grid.html">Blog Category Grid</a></li>
                                     <li><a href="blog-category-list.html">Blog Category List</a></li>
@@ -111,8 +111,8 @@
                                             <li><a href="blog-post-fullwidth.html">No Sidebar</a></li>
                                         </ul>
                                     </li>
-                                </ul>
-                            </li>
+                                </ul> -->
+                            <!-- </li> -->
                             <li class="menu-item-has-children"><span class="menu-expand"></span><a href="#">Pages</a>
                                 <ul class="dropdown">
                                     <li><a href="page-about.html">About Us</a></li>
@@ -228,7 +228,7 @@
             </div>
             <div class="slider-arrow hero-slider-1-arrow"></div>
         </section>
-        <section class="featured section-padding position-relative">            
+        <!-- <section class="featured section-padding position-relative">            
             <div class="container">
                 <div class="row">
                     <div class="col-lg-2 col-md-4 mb-md-3 mb-lg-0">
@@ -269,7 +269,7 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
         <section class="product-tabs section-padding position-relative wow fadeIn animated">
             <div class="bg-square"></div>
             <div class="container">
@@ -291,45 +291,45 @@
                 <div class="tab-content wow fadeIn animated" id="myTabContent">
                     <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one">
                         <div class="row product-grid-4">
+                            <%for(let i=0;i<products.length;i++){%>
                             <div class="col-lg-3 col-md-4 col-12 col-sm-6">
                                 <div class="product-cart-wrap mb-30">
                                     <div class="product-img-action-wrap">
                                         <div class="product-img product-img-zoom">
-                                            <a href="shop-product-right.html">
-                                                <img class="default-img" src="evara-frontend/assets/imgs/shop/product-1-1.jpg" alt="">
-                                                <img class="hover-img" src="evara-frontend/assets/imgs/shop/product-1-2.jpg" alt="">
+                                            <a href="/productDetails?id=<%=products[i]._id%>">
+                                                <img class="default-img" src="/uploads/re-image/<%=products[i].productImage[0]%>" alt="<%=products[i].productImage[0]%>">
+                                                <!-- <img class="hover-img" src="evara-frontend/assets/imgs/shop/product-1-2.jpg" alt=""> -->
                                             </a>
                                         </div>
                                         <div class="product-action-1">
-                                            <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
-                                            <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                            <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
+                                            <!-- <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a> -->
+                                            <a aria-label="Add To Wishlist" class="action-btn hover-up" href="/addtoWishlist?id=<%products[i]._id%>"><i class="fi-rs-heart"></i></a>
+                                            <!-- <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> -->
                                         </div>
-                                        <div class="product-badges product-badges-position product-badges-mrg">
-                                            <span class="hot">Hot</span>
-                                        </div>
+                                        
                                     </div>
                                     <div class="product-content-wrap">
                                         <div class="product-category">
-                                            <a href="shop-grid-right.html">Clothing</a>
+                                            <a href="shop-grid-right.html"><%=products[i].category.name%></a>
                                         </div>
-                                        <h2><a href="shop-product-right.html">Colorful Pattern Shirts</a></h2>
+                                        <h2><%=products[i].productName%></h2>
                                         <div class="rating-result" title="90%">
                                             <span>
                                                 <span>90%</span>
                                             </span>
                                         </div>
                                         <div class="product-price">
-                                            <span>$238.85 </span>
-                                            <span class="old-price">$245.8</span>
+                                            <span><%=products[i].salePrice%> </span>
+                                            <!-- <span class="old-price">$245.8</span> -->
                                         </div>
                                         <div class="product-action-1 show">
-                                            <a aria-label="Add To Cart" class="action-btn hover-up" href="shop-cart.html"><i class="fi-rs-shopping-bag-add"></i></a>
+                                            <a aria-label="Add To Cart" class="action-btn hover-up" href="/addToCart?id=<%=products[i]._id%>"><i class="fi-rs-shopping-bag-add"></i></a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+                            <%}%>
+                            <!-- <div class="col-lg-3 col-md-4 col-12 col-sm-6">
                                 <div class="product-cart-wrap mb-30">
                                     <div class="product-img-action-wrap">
                                         <div class="product-img product-img-zoom">
@@ -590,7 +590,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div>-->
                         </div>
                         <!--End product-grid-4-->
                     </div>
@@ -1203,7 +1203,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> 
                         <!--End product-grid-4-->
                     </div>
                     <!--En tab three (New added)-->
@@ -1211,7 +1211,7 @@
                 <!--End tab-content-->
             </div>
         </section>
-        <section class="banner-2 section-padding pb-0">
+        <!-- <section class="banner-2 section-padding pb-0">
             <div class="container">
                 <div class="banner-img banner-big wow fadeIn animated f-none">
                     <img src="evara-frontend/assets/imgs/banner/banner-4.png" alt="">
@@ -1222,8 +1222,8 @@
                     </div>
                 </div>
             </div>
-        </section>
-        <section class="popular-categories section-padding mt-15 mb-25">
+        </section> -->
+        <!-- <section class="popular-categories section-padding mt-15 mb-25">
             <div class="container wow fadeIn animated">
                 <h3 class="section-title mb-20"><span>Popular</span> Categories</h3>
                 <div class="carausel-6-columns-cover position-relative">
@@ -1280,8 +1280,8 @@
                     </div>
                 </div>
             </div>
-        </section>
-        <section class="banners mb-15">
+        </section> -->
+        <!-- <section class="banners mb-15">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-4 col-md-6">
@@ -1316,8 +1316,8 @@
                     </div>
                 </div>
             </div>
-        </section>
-        <section class="section-padding">
+        </section> -->
+        <!-- <section class="section-padding">
             <div class="container wow fadeIn animated">
                 <h3 class="section-title mb-20"><span>New</span> Arrivals</h3>
                 <div class="carausel-6-columns-cover position-relative">
@@ -1352,9 +1352,9 @@
                                     <span class="old-price">$245.8</span>
                                 </div>
                             </div>
-                        </div>
-                        <!--End product-cart-wrap-2-->
-                        <div class="product-cart-wrap small hover-up">
+                        </div>-->
+                        <!-- End product-cart-wrap-2 -->
+                        <!-- <div class="product-cart-wrap small hover-up">
                             <div class="product-img-action-wrap">
                                 <div class="product-img product-img-zoom">
                                     <a href="shop-product-right.html">
@@ -1383,9 +1383,9 @@
                                     <span class="old-price">$185.8</span>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <!--End product-cart-wrap-2-->
-                        <div class="product-cart-wrap small hover-up">
+                        <!-- <div class="product-cart-wrap small hover-up">
                             <div class="product-img-action-wrap">
                                 <div class="product-img product-img-zoom">
                                     <a href="shop-product-right.html">
@@ -1414,9 +1414,9 @@
                                     <span class="old-price">$235.8</span>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <!--End product-cart-wrap-2-->
-                        <div class="product-cart-wrap small hover-up">
+                        <!-- <div class="product-cart-wrap small hover-up">
                             <div class="product-img-action-wrap">
                                 <div class="product-img product-img-zoom">
                                     <a href="shop-product-right.html">
@@ -1445,9 +1445,9 @@
                                     <span class="old-price">$125.2</span>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <!--End product-cart-wrap-2-->
-                        <div class="product-cart-wrap small hover-up">
+                        <!-- <div class="product-cart-wrap small hover-up">
                             <div class="product-img-action-wrap">
                                 <div class="product-img product-img-zoom">
                                     <a href="shop-product-right.html">
@@ -1476,9 +1476,9 @@
                                     <span class="old-price">$1245.8</span>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <!--End product-cart-wrap-2-->
-                        <div class="product-cart-wrap small hover-up">
+                        <!-- <div class="product-cart-wrap small hover-up">
                             <div class="product-img-action-wrap">
                                 <div class="product-img product-img-zoom">
                                     <a href="shop-product-right.html">
@@ -1507,41 +1507,15 @@
                                     <span class="old-price">$156</span>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <!--End product-cart-wrap-2-->
-                        <div class="product-cart-wrap small hover-up">
-                            <div class="product-img-action-wrap">
-                                <div class="product-img product-img-zoom">
-                                    <a href="shop-product-right.html">
-                                        <img class="default-img" src="evara-frontend/assets/imgs/shop/product-1-1.jpg" alt="">
-                                        <img class="hover-img" src="evara-frontend/assets/imgs/shop/product-1-2.jpg" alt="">
-                                    </a>
-                                </div>
-                                <div class="product-action-1">
-                                    <a aria-label="Quick view" class="action-btn small hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal">
-<i class="fi-rs-eye"></i></a>
-                                    <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="shop-wishlist.html" tabindex="0"><i class="fi-rs-heart"></i></a>
-                                    <a aria-label="Compare" class="action-btn small hover-up" href="shop-compare.html" tabindex="0"><i class="fi-rs-shuffle"></i></a>
-                                </div>
-                            </div>
-                            <div class="product-content-wrap">
-                                <h2><a href="shop-product-right.html">Vestibulum ante</a></h2>
-                                <div class="rating-result" title="90%">
-                                    <span>
-                                    </span>
-                                </div>
-                                <div class="product-price">
-                                    <span>$238.85 </span>
-                                    <span class="old-price">$245.8</span>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- / -->
                         <!--End product-cart-wrap-2-->
-                    </div>
+                    <!-- </div>
                 </div>
-            </div>
-        </section>
-        <section class="deals section-padding">
+            </div> -->
+        <!-- </section> --> 
+        <!-- <section class="deals section-padding">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-6 deal-co">
@@ -1580,8 +1554,8 @@
                     </div>
                 </div>
             </div>
-        </section>
-        <section class="section-padding">
+        </section> -->
+        <!-- <section class="section-padding">
             <div class="container">
                 <h3 class="section-title mb-20 wow fadeIn animated"><span>Featured</span> Brands</h3>
                 <div class="carausel-6-columns-cover position-relative wow fadeIn animated">
@@ -1611,8 +1585,8 @@
                     </div>
                 </div>
             </div>
-        </section>
-        <section class="bg-grey-9 section-padding">
+        </section> -->
+        <!-- <section class="bg-grey-9 section-padding">
             <div class="container pt-25 pb-25">
                 <div class="heading-tab d-flex">
                     <div class="heading-tab-left wow fadeIn animated">
@@ -1837,7 +1811,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <!--End tab-pane-->
+                            
                             <div class="tab-pane fade" id="tab-two-1" role="tabpanel" aria-labelledby="tab-two-1">
                                 <div class="carausel-4-columns-cover arrow-center position-relative">
                                     <div class="slider-arrow slider-arrow-2 carausel-4-columns-arrow" id="carausel-4-columns-2-arrows"></div>
@@ -2223,13 +2197,13 @@
                                 </div>
                             </div>
                         </div>
-                        <!--End tab-content-->
+                       
                     </div>
-                    <!--End Col-lg-9-->
+                   
                 </div>
             </div>
-        </section>
-        <section class="section-padding">
+        </section> -->
+        <!-- <section class="section-padding">
             <div class="container pt-25 pb-20">
                 <div class="row">
                     <div class="col-lg-6">
@@ -2319,8 +2293,8 @@
                     </div>
                 </div>
             </div>
-        </section>
-        <section class="mb-50">
+        </section> -->
+        <!-- <section class="mb-50">
             <div class="container">
                 <div class="row">
                     <div class="col-12">
@@ -2333,8 +2307,8 @@
                     </div>
                 </div>
             </div>
-        </section>
-        <section class="mb-45">
+        </section> -->
+        <!-- <section class="mb-45">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-3 col-md-6 mb-sm-5 mb-md-0">
@@ -2489,7 +2463,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </div> 
+        </section>-->
     </main>
     <%-include('../../views/partials/user/footer')%>

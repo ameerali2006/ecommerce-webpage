@@ -23,27 +23,34 @@ const getProductAddPage= async (req,res)=>{
     }
 }
 const addProducts=async (req,res)=>{
-    console.log('str');
+   
     try {
-        console.log('start');
+        
         const products=req.body;
-        console.log(req.body);
+        
         const productExists=await Product.findOne({
             productName:products.productName,
         })
-        console.log('cheking');
+        
         if(!productExists){
             const images=[];
 
-            if(req.file&&req.files.length>0){
+            if(req.files&&req.files.length>0){
+                console.log('ysss file is there')
                 for(i=0;i<req.files.length;i++){
                     const originalImagePath=req.files[i].path
-
-                    const resizeImagePath=path.join('public','uploads','product-images',req.files[i].filename);
+                    console.log('1st',originalImagePath);
+                    
+                    const resizeImagePath=path.join('public','uploads','re-image',`${path.parse(req.files[i].filename).name}-resized${path.extname(req.files[i].filename)}`);
+                    console.log('2nd',resizeImagePath);
                     await sharp(originalImagePath).resize({width:440,height:440}).toFile(resizeImagePath);
-                    images.push(req.files[i].filename)
+                    console.log('3rd');
+                    images.push(`${path.parse(req.files[i].filename).name}-resized${path.extname(req.files[i].filename)}`)
+                    console.log('4th',images);
+
                 }
             }
+            console.log(images);
             const categoryId=await Category.findOne({name:products.category})
             if(!categoryId){
                 return res.status(400).json('Invalid category name')
@@ -55,10 +62,10 @@ const addProducts=async (req,res)=>{
                 category:categoryId._id,
                 regularPrice:products.regularPrice,
                 salePrice:products.salePrice,
-                // createdAt:new Date(),
+                
                 quantity:products.quantity,
                 color:products.color,
-                // size:products.size,
+             
                 productImage:images,
                 status:'Available'
 
@@ -70,7 +77,7 @@ const addProducts=async (req,res)=>{
             await newProduct.save();
             return res.redirect('/admin/addProducts')
         }else{
-            return res.status(400).jsoon('product already exist,please ty with another name')
+            return res.status(400).json('product already exist,please ty with another name')
 
         }
     } catch (error) {
@@ -113,7 +120,7 @@ const getAllProducts=async (req,res)=>{
                 data:productData,
                 currentPage:page,
                 totalPages:Math.ceil(count/limit),
-                cat:category,
+                category:category,
                 brand:brand
 
 
@@ -273,7 +280,8 @@ const editProduct= async (req,res)=>{
             regularPrice:data.regularPrice,
             salePrice:data.salePrice,
             quantity:data.quantity,
-            color:data.color
+            color:data.color,
+             
 
         }
         if(req.files.length>0){

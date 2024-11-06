@@ -199,31 +199,49 @@
     <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
 
     <script>
-
+        
+        console.log('stat');
 
         function viewImage1(event) {
+            console.log('viewImg1');
             document.getElementById("imgView1").src = URL.createObjectURL(event.target.files[0])
         }
 
         function viewImage2(event) {
+            console.log('viewImg2');
             document.getElementById("imgView2").src = URL.createObjectURL(event.target.files[0])
         }
 
         function viewImage3(event) {
+            console.log('viewImg3');
             document.getElementById("imgView3").src = URL.createObjectURL(event.target.files[0])
         }
 
         function viewImage4(event) {
+            console.log('viewImg4 ');
             document.getElementById("imgView4").src = URL.createObjectURL(event.target.files[0])
         }
 
         function viewImage(event, index) {
+            console.log("viewImage(event, index)");
+
             let input = event.target;
+            console.log('1');
             let reader = new FileReader();
-            reader.onload = function () {
+            console.log('2');
+
+            reader.onload = function () {            
+                console.log('3');
+
                 let dataURL = reader.result;
+                console.log('4');
+
                 let image = document.getElementById("imgView" + index);
+                console.log('5');
+
                 image.src = dataURL;
+                console.log('6');
+
                 let cropper = new Cropper(image, {
                     aspectRatio: 1,
                     viewMode: 1,
@@ -232,18 +250,30 @@
                     autoCropArea: 1,
                     zoomable: true,
                 });
+                console.log('cropper');
+
 
                 let cropperContainer = document.querySelector("#croppedImg" + index).parentNode;
                 cropperContainer.style.display = "block";
+                console.log('7');
+
+                console.log('81');
 
                 let saveButton = document.querySelector("#saveButton" + index);
+                console.log('91');
                 saveButton.addEventListener("click", async function () {
+                    console.log('101');
                     let croppedCanvas = cropper.getCroppedCanvas();
+                    console.log('11');
                     let croppedImage = document.getElementById("croppedImg" + index);
+                    console.log('12');
                     croppedImage.src = croppedCanvas.toDataURL('img/jpg', 1.0);
 
+                    console.log('13');
                     let timestamp = new Date().getTime();
+                    console.log('14');
                     let fileName = `cropped-img-${timestamp}-${index}.png`;
+                    console.log('15');
 
                     await croppedCanvas.toBlob(blob => {
                         let input = document.getElementById('input' + index);
@@ -263,28 +293,45 @@
         }
 
         const selectedImages = [];
+        console.log('event');
         document.getElementById("input1").addEventListener("change", handleFileSelect);
 
         function handleFileSelect(event) {
+            
+            console.log('11');
             const addedImagesContainer = document.getElementById("addedImagesContainer");
+            console.log('12');
             addedImagesContainer.innerHTML = "";
+            console.log('13');
             const files = event.target.files;
+            console.log('14');
             for (let i = 0; i < files.length; i++) {
+                console.log('15');
                 const file = files[i];
+                console.log('16');
                 selectedImages.push(file);
+                console.log('16');
                 const thumbnail = document.createElement("div");
+                console.log('17');
                 thumbnail.classList.add("thumbnail");
 
+                console.log('17');
                 const img = document.createElement("img");
                 img.src = URL.createObjectURL(file);
+                console.log('17');
                 img.alt = "thumbnail";
                 img.style.width = "50px";
+                console.log('18');
                 img.style.height = "auto";
+                console.log('18');
                 const removeIcon = document.createElement("span");
+                console.log('18');
                 removeIcon.classList.add("remove-icon");
                 removeIcon.innerHTML = "&times;";
                 removeIcon.addEventListener("click", function () {
+                    console.log('19');
                     const index = selectedImages.indexOf(file);
+                    console.log('19');
                     if (index !== -1) {
                         selectedImages.splice(index, 1);
                     }
@@ -295,10 +342,14 @@
                 thumbnail.appendChild(removeIcon);
                 addedImagesContainer.appendChild(thumbnail);
             }
+            
+            console.log('endedd'); 
         }
 
 
         function validateForm() {
+            
+            console.log('vali form');
             clearErrorMessages();
             const name = document.getElementsByName('productName')[0].value;
             const description = document.getElementById('descriptionid').value;
