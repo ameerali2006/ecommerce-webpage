@@ -6,7 +6,7 @@
             <div class="breadcrumb">
                 <a href="index.html" rel="nofollow">Home</a>
                 <span></span> Fashion
-                <span></span> Abstract Print Patchwork Dress
+                <span></span> <%=data.productName%>
             </div>
         </div>
     </div>
@@ -21,47 +21,27 @@
                                     <span class="zoom-icon"><i class="fi-rs-search"></i></span>
                                     <!-- MAIN SLIDES -->
                                     <div class="product-image-slider">
-                                        <figure class="border-radius-10">
-                                            <img src="assets/imgs/shop/product-16-2.jpg" alt="product image">
+                                        <%for(let i=0;i<data.productImage.length;i++){%>
+                                        <figure >
+                                            <img src="uploads/re-image/<%=data.productImage[i]%>" alt="product image">
                                         </figure>
-                                        <figure class="border-radius-10">
-                                            <img src="assets/imgs/shop/product-16-1.jpg" alt="product image">
-                                        </figure>
-                                        <figure class="border-radius-10">
-                                            <img src="assets/imgs/shop/product-16-3.jpg" alt="product image">
-                                        </figure>
-                                        <figure class="border-radius-10">
-                                            <img src="assets/imgs/shop/product-16-4.jpg" alt="product image">
-                                        </figure>
-                                        <figure class="border-radius-10">
-                                            <img src="assets/imgs/shop/product-16-5.jpg" alt="product image">
-                                        </figure>
-                                        <figure class="border-radius-10">
-                                            <img src="assets/imgs/shop/product-16-6.jpg" alt="product image">
-                                        </figure>
-                                        <figure class="border-radius-10">
-                                            <img src="assets/imgs/shop/product-16-7.jpg" alt="product image">
-                                        </figure>
+                                        <%}%>
                                     </div>
                                     <!-- THUMBNAILS -->
                                     <div class="slider-nav-thumbnails pl-15 pr-15">
-                                        <div><img src="assets/imgs/shop/thumbnail-3.jpg" alt="product image"></div>
-                                        <div><img src="assets/imgs/shop/thumbnail-4.jpg" alt="product image"></div>
-                                        <div><img src="assets/imgs/shop/thumbnail-5.jpg" alt="product image"></div>
-                                        <div><img src="assets/imgs/shop/thumbnail-6.jpg" alt="product image"></div>
-                                        <div><img src="assets/imgs/shop/thumbnail-7.jpg" alt="product image"></div>
-                                        <div><img src="assets/imgs/shop/thumbnail-8.jpg" alt="product image"></div>
-                                        <div><img src="assets/imgs/shop/thumbnail-9.jpg" alt="product image"></div>
+                                        <%for(let i=0;i<data.productImage.length;i++){%>
+                                            <div><img src="uploads/re-image/<%=data.productImage[i]%>" alt="product image"></div>
+                                        <%}%>    
                                     </div>
                                 </div>
                                 <!-- End Gallery -->
                             </div>
                             <div class="col-md-6 col-sm-12 col-xs-12">
                                 <div class="detail-info">
-                                    <h2 class="title-detail">Colorful Pattern Shirts HD450</h2>
+                                    <h2 class="title-detail"><%=data.productName%></h2>
                                     <div class="product-detail-rating">
                                         <div class="pro-details-brand">
-                                            <span> Brands: <a href="shop-grid-right.html">Bootstrap</a></span>
+                                            <span> Brands: <a href="shop-grid-right.html"><%=data.brand%></a></span>
                                         </div>
                                         <div class="product-rate-cover text-end">
                                             <div class="product-rate d-inline-block">
@@ -73,23 +53,23 @@
                                     </div>
                                     <div class="clearfix product-price-cover">
                                         <div class="product-price primary-color float-left">
-                                            <ins><span class="text-brand">$120.00</span></ins>
-                                            <ins><span class="old-price font-md ml-15">$200.00</span></ins>
-                                            <span class="save-price  font-md color3 ml-15">25% Off</span>
+                                            <ins><span class="text-brand">$<%=data.salePrice%></span></ins>
+                                            <ins><span class="old-price font-md ml-15">$<%=data.regularPrice%></span></ins>
+                                            <span class="save-price  font-md color3 ml-15"></span>
                                         </div>
                                     </div>
                                     <div class="bt-1 border-color-1 mt-15 mb-15"></div>
                                     <div class="short-desc mb-30">
-                                        <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aliquam rem officia, corrupti reiciendis minima nisi modi, quasi, odio minus dolore impedit fuga eum eligendi? Officia doloremque facere quia. Voluptatum, accusantium!</p>
+                                        <p><%=data.description%></p>
                                     </div>
                                     <div class="product_sort_info font-xs mb-30">
                                         <ul>
-                                            <li class="mb-10"><i class="fi-rs-crown mr-5"></i> 1 Year AL Jazeera Brand Warranty</li>
+                                            <li class="mb-10"><i class="fi-rs-crown mr-5"></i> 1 Year <%=data.brand%> Brand Warranty</li>
                                             <li class="mb-10"><i class="fi-rs-refresh mr-5"></i> 30 Day Return Policy</li>
                                             <li><i class="fi-rs-credit-card mr-5"></i> Cash on Delivery available</li>
                                         </ul>
                                     </div>
-                                    <div class="attr-detail attr-color mb-15">
+                                    <!-- <div class="attr-detail attr-color mb-15">
                                         <strong class="mr-10">Color</strong>
                                         <ul class="list-filter color-filter">
                                             <li><a href="#" data-color="Red"><span class="product-color-red"></span></a></li>
@@ -100,8 +80,8 @@
                                             <li><a href="#" data-color="Green"><span class="product-color-green"></span></a></li>
                                             <li><a href="#" data-color="Purple"><span class="product-color-purple"></span></a></li>
                                         </ul>
-                                    </div>
-                                    <div class="attr-detail attr-size">
+                                    </div> -->
+                                    <!-- <div class="attr-detail attr-size">
                                         <strong class="mr-10">Size</strong>
                                         <ul class="list-filter size-filter font-small">
                                             <li><a href="#">S</a></li>
@@ -110,7 +90,7 @@
                                             <li><a href="#">XL</a></li>
                                             <li><a href="#">XXL</a></li>
                                         </ul>
-                                    </div>
+                                    </div> -->
                                     <div class="bt-1 border-color-1 mt-30 mb-30"></div>
                                     <div class="detail-extralink">
                                         <div class="detail-qty border radius">
@@ -133,15 +113,11 @@
                                 <!-- Detail Info -->
                             </div>
                         </div>
-                        <div class="row">
+                        <!-- <div class="row">
                             <div class="col-lg-10 m-auto entry-main-content">
                                 <h2 class="section-title style-1 mb-30">Description</h2>
                                 <div class="description mb-50">
-                                    <p>Uninhibited carnally hired played in whimpered dear gorilla koala depending and much yikes off far quetzal goodness and from for grimaced goodness unaccountably and meadowlark near unblushingly crucial scallop
-                                        tightly neurotic hungrily some and dear furiously this apart.</p>
-                                    <p>Spluttered narrowly yikes left moth in yikes bowed this that grizzly much hello on spoon-fed that alas rethought much decently richly and wow against the frequent fluidly at formidable acceptably flapped
-                                        besides and much circa far over the bucolically hey precarious goldfinch mastodon goodness gnashed a jellyfish and one however because.
-                                    </p>
+                                    <p><%=data.description%></p>
                                     <ul class="product-more-infor mt-30">
                                         <li><span>Type Of Packing</span> Bottle</li>
                                         <li><span>Color</span> Green, Pink, Powder Blue, Purple</li>
@@ -254,14 +230,14 @@
                                 <div class="social-icons single-share">
                                     <ul class="text-grey-5 d-inline-block">
                                         <li><strong class="mr-10">Share this:</strong></li>
-                                        <li class="social-facebook"><a href="#"><img src="assets/imgs/theme/icons/icon-facebook.svg" alt=""></a></li>
-                                        <li class="social-twitter"> <a href="#"><img src="assets/imgs/theme/icons/icon-twitter.svg" alt=""></a></li>
-                                        <li class="social-instagram"><a href="#"><img src="assets/imgs/theme/icons/icon-instagram.svg" alt=""></a></li>
-                                        <li class="social-linkedin"><a href="#"><img src="assets/imgs/theme/icons/icon-pinterest.svg" alt=""></a></li>
+                                        <li class="social-facebook"><a href="#"><img src="evara-frontend/assets/imgs/theme/icons/icon-facebook.svg" alt=""></a></li>
+                                        <li class="social-twitter"> <a href="#"><img src="evara-frontend/assets/imgs/theme/icons/icon-twitter.svg" alt=""></a></li>
+                                        <li class="social-instagram"><a href="#"><img src="evara-frontend/assets/imgs/theme/icons/icon-instagram.svg" alt=""></a></li>
+                                        <li class="social-linkedin"><a href="#"><img src="evara-frontend/assets/imgs/theme/icons/icon-pinterest.svg" alt=""></a></li>
                                     </ul>
                                 </div>
                                 <h3 class="section-title style-1 mb-30 mt-30">Reviews (3)</h3>
-                                <!--Comments-->
+                                
                                 <div class="comments-area style-2">
                                     <div class="row">
                                         <div class="col-lg-8">
@@ -270,7 +246,7 @@
                                                 <div class="single-comment justify-content-between d-flex">
                                                     <div class="user justify-content-between d-flex">
                                                         <div class="thumb text-center">
-                                                            <img src="assets/imgs/page/avatar-6.jpg" alt="">
+                                                            <img src="evara-frontend/assets/imgs/page/avatar-6.jpg" alt="">
                                                             <h6><a href="#">Jacky Chan</a></h6>
                                                             <p class="font-xxs">Since 2012</p>
                                                         </div>
@@ -289,11 +265,11 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <!--single-comment -->
+                                               
                                                 <div class="single-comment justify-content-between d-flex">
                                                     <div class="user justify-content-between d-flex">
                                                         <div class="thumb text-center">
-                                                            <img src="assets/imgs/page/avatar-7.jpg" alt="">
+                                                            <img src="evara-frontend/assets/imgs/page/avatar-7.jpg" alt="">
                                                             <h6><a href="#">Ana Rosie</a></h6>
                                                             <p class="font-xxs">Since 2008</p>
                                                         </div>
@@ -312,11 +288,11 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <!--single-comment -->
+                                                
                                                 <div class="single-comment justify-content-between d-flex">
                                                     <div class="user justify-content-between d-flex">
                                                         <div class="thumb text-center">
-                                                            <img src="assets/imgs/page/avatar-8.jpg" alt="">
+                                                            <img src="evara-frontend/assets/imgs/page/avatar-8.jpg" alt="">
                                                             <h6><a href="#">Steven Keny</a></h6>
                                                             <p class="font-xxs">Since 2010</p>
                                                         </div>
@@ -335,7 +311,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <!--single-comment -->
+                                               
                                             </div>
                                         </div>
                                         <div class="col-lg-4">
@@ -371,7 +347,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!--comment form-->
+                              
                                 <div class="comment-form">
                                     <h4 class="mb-15">Add a review</h4>
                                     <div class="product-rate d-inline-block mb-30">
@@ -410,20 +386,21 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <div class="row mt-60">
                             <div class="col-12">
                                 <h3 class="section-title style-1 mb-30">Related products</h3>
                             </div>
                             <div class="col-12">
                                 <div class="row related-products">
+                                    <%for(i=0;i<recData.length;i++){%>
                                     <div class="col-lg-3 col-md-4 col-12 col-sm-6">
                                         <div class="product-cart-wrap small hover-up">
                                             <div class="product-img-action-wrap">
                                                 <div class="product-img product-img-zoom">
-                                                    <a href="shop-product-right.html" tabindex="0">
-                                                        <img class="default-img" src="assets/imgs/shop/product-2-1.jpg" alt="">
-                                                        <img class="hover-img" src="assets/imgs/shop/product-2-2.jpg" alt="">
+                                                    <a href="/productDetails?id=<%=recData[i]._id%>" tabindex="0">
+                                                        <img class="default-img" src="uploads/re-image/<%=recData[i].productImage[0]%>" alt="">
+                                                        <img class="hover-img" src="uploads/re-image/<%=recData[i].productImage[0]%>" alt="">
                                                     </a>
                                                 </div>
                                                 <div class="product-action-1">
@@ -432,124 +409,28 @@
                                                     <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="shop-wishlist.html" tabindex="0"><i class="fi-rs-heart"></i></a>
                                                     <a aria-label="Compare" class="action-btn small hover-up" href="shop-compare.html" tabindex="0"><i class="fi-rs-shuffle"></i></a>
                                                 </div>
-                                                <div class="product-badges product-badges-position product-badges-mrg">
-                                                    <span class="hot">Hot</span>
-                                                </div>
+                                               
                                             </div>
                                             <div class="product-content-wrap">
-                                                <h2><a href="shop-product-right.html" tabindex="0">Ulstra Bass Headphone</a></h2>
+                                                <h2><a href="shop-product-right.html" tabindex="0"><%=recData[i].productName%></a></h2>
                                                 <div class="rating-result" title="90%">
                                                     <span>
                                                     </span>
                                                 </div>
                                                 <div class="product-price">
-                                                    <span>$238.85 </span>
-                                                    <span class="old-price">$245.8</span>
+                                                    <span>$<%=recData[i].salePrice%></span>
+                                                    <span class="old-price">$<%=recData[i].regularPrice%></span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-3 col-md-4 col-12 col-sm-6">
-                                        <div class="product-cart-wrap small hover-up">
-                                            <div class="product-img-action-wrap">
-                                                <div class="product-img product-img-zoom">
-                                                    <a href="shop-product-right.html" tabindex="0">
-                                                        <img class="default-img" src="assets/imgs/shop/product-3-1.jpg" alt="">
-                                                        <img class="hover-img" src="assets/imgs/shop/product-4-2.jpg" alt="">
-                                                    </a>
-                                                </div>
-                                                <div class="product-action-1">
-                                                    <a aria-label="Quick view" class="action-btn small hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal
-"><i class="fi-rs-search"></i></a>
-                                                    <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="shop-wishlist.html" tabindex="0"><i class="fi-rs-heart"></i></a>
-                                                    <a aria-label="Compare" class="action-btn small hover-up" href="shop-compare.html" tabindex="0"><i class="fi-rs-shuffle"></i></a>
-                                                </div>
-                                                <div class="product-badges product-badges-position product-badges-mrg">
-                                                    <span class="sale">-12%</span>
-                                                </div>
-                                            </div>
-                                            <div class="product-content-wrap">
-                                                <h2><a href="shop-product-right.html" tabindex="0">Smart Bluetooth Speaker</a></h2>
-                                                <div class="rating-result" title="90%">
-                                                    <span>
-                                                    </span>
-                                                </div>
-                                                <div class="product-price">
-                                                    <span>$138.85 </span>
-                                                    <span class="old-price">$145.8</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-4 col-12 col-sm-6">
-                                        <div class="product-cart-wrap small hover-up">
-                                            <div class="product-img-action-wrap">
-                                                <div class="product-img product-img-zoom">
-                                                    <a href="shop-product-right.html" tabindex="0">
-                                                        <img class="default-img" src="assets/imgs/shop/product-4-1.jpg" alt="">
-                                                        <img class="hover-img" src="assets/imgs/shop/product-4-2.jpg" alt="">
-                                                    </a>
-                                                </div>
-                                                <div class="product-action-1">
-                                                    <a aria-label="Quick view" class="action-btn small hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal
-"><i class="fi-rs-search"></i></a>
-                                                    <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="shop-wishlist.html" tabindex="0"><i class="fi-rs-heart"></i></a>
-                                                    <a aria-label="Compare" class="action-btn small hover-up" href="shop-compare.html" tabindex="0"><i class="fi-rs-shuffle"></i></a>
-                                                </div>
-                                                <div class="product-badges product-badges-position product-badges-mrg">
-                                                    <span class="new">New</span>
-                                                </div>
-                                            </div>
-                                            <div class="product-content-wrap">
-                                                <h2><a href="shop-product-right.html" tabindex="0">HomeSpeak 12UEA Goole</a></h2>
-                                                <div class="rating-result" title="90%">
-                                                    <span>
-                                                    </span>
-                                                </div>
-                                                <div class="product-price">
-                                                    <span>$738.85 </span>
-                                                    <span class="old-price">$1245.8</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-4 col-12 col-sm-6">
-                                        <div class="product-cart-wrap small hover-up mb-0">
-                                            <div class="product-img-action-wrap">
-                                                <div class="product-img product-img-zoom">
-                                                    <a href="shop-product-right.html" tabindex="0">
-                                                        <img class="default-img" src="assets/imgs/shop/product-5-1.jpg" alt="">
-                                                        <img class="hover-img" src="assets/imgs/shop/product-3-2.jpg" alt="">
-                                                    </a>
-                                                </div>
-                                                <div class="product-action-1">
-                                                    <a aria-label="Quick view" class="action-btn small hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal
-"><i class="fi-rs-search"></i></a>
-                                                    <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="shop-wishlist.html" tabindex="0"><i class="fi-rs-heart"></i></a>
-                                                    <a aria-label="Compare" class="action-btn small hover-up" href="shop-compare.html" tabindex="0"><i class="fi-rs-shuffle"></i></a>
-                                                </div>
-                                                <div class="product-badges product-badges-position product-badges-mrg">
-                                                    <span class="hot">Hot</span>
-                                                </div>
-                                            </div>
-                                            <div class="product-content-wrap">
-                                                <h2><a href="shop-product-right.html" tabindex="0">Dadua Camera 4K 2022EF</a></h2>
-                                                <div class="rating-result" title="90%">
-                                                    <span>
-                                                    </span>
-                                                </div>
-                                                <div class="product-price">
-                                                    <span>$89.8 </span>
-                                                    <span class="old-price">$98.8</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <%}%>
+                                    
                                 </div>
                             </div>
                         </div>
                         <div class="banner-img banner-big wow fadeIn f-none animated mt-50">
-                            <img class="border-radius-10" src="assets/imgs/banner/banner-4.png" alt="">
+                            <img class="border-radius-10" src="evara-frontend/assets/imgs/banner/banner-4.png" alt="">
                             <div class="banner-text">
                                 <h4 class="mb-15 mt-40">Repair Services</h4>
                                 <h2 class="fw-600 mb-20">We're an Apple <br>Authorised Service Provider</h2>
@@ -558,7 +439,10 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </section>
+
 </main>
+
 <%-include('../../views/partials/user/footer')%>

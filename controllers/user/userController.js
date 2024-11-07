@@ -19,7 +19,7 @@ const loadHomepage= async (req,res)=>{
         productData.sort((a,b)=>new Date(b.createOn)-new Date(a.createOn))
         console.log('4');
 
-        productData=productData.slice(0,4)
+        productData=productData.slice(0)
         console.log('5');
 
         if(user){
@@ -271,8 +271,23 @@ const logout=async (req,res)=>{
     }
 }
 
+const getProductDetails= async (req,res)=>{
+    try {
+        const id=req.query.id;
+        console.log(id);
+        const productData=await Product.findOne({_id:id})
+        const recProducts=await Product.find({category:productData.category,_id:{$ne:productData.id}}).limit(4)
+        if(!productData){
+            console.log('not founded');
+            return res.status(404).redirect('/admin/pageerror')
+        }
+        res.render('product-details',{data:productData,recData:recProducts})
+    } catch (error) {
+        res.redirect('/admin/pageerror')
+    }
+}
 
- 
+  
 
 
 
@@ -286,5 +301,6 @@ module.exports={
     resendOtp,
     loadLogin,
     login,
-    logout
+    logout,
+    getProductDetails
 }

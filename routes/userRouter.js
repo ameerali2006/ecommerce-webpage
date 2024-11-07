@@ -28,7 +28,7 @@ router.get('/logout',userController.logout)
 router.get('/forgot-password',profileController.getForgotPassPage)
 router.post('/forgot-email-valid',profileController.forgotEmailValid);
 
-// router.get('/productDetails',userController.getProductDetails)
+router.get('/productDetails',userController.getProductDetails)
 
 
 module.exports=router
