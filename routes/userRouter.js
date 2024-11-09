@@ -1,4 +1,5 @@
 const express = require('express');
+const {userAuth,adminAuth}=require('../middlewares/auth')
 const router=express.Router();
 const userController = require('../controllers/user/userController');
 const passport = require('passport');
@@ -30,5 +31,18 @@ router.post('/forgot-email-valid',profileController.forgotEmailValid);
 
 router.get('/productDetails',userController.getProductDetails)
 
+router.get('/userProfile',userAuth,profileController.userProfile)
+router.get('/address',userAuth,profileController.getAddress)
 
-module.exports=router
+router.get('/addAddress',userAuth,profileController.addAddress)
+router.post('/addAddress',userAuth,profileController.postAddAddress)
+
+router.get('/editAddress',userAuth,profileController.editAddress)
+router.post('/editAddress',userAuth,profileController.postEditAddress)
+
+router.get('/deleteAddress',userAuth,profileController.deleteAddress)
+
+
+
+
+module.exports=router 

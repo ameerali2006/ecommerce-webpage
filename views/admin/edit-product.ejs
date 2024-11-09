@@ -223,6 +223,9 @@
         </div>
     </section>
     <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+    <!-- Include jQuery CDN in the <head> or before your custom script -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 
     <script>
 
@@ -405,8 +408,9 @@
 
 
         function deleteSingleImage(imageId, productId) {
+            console.log("deletesingle");
             $.ajax({
-                url: '/admin/deleteimage',
+                url: '/admin/deleteImage',
                 method: "POST",
                 data: { imageNameToServer: imageId, productIdToServer: productId },
                 success: (response) => {

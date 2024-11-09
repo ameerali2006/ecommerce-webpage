@@ -298,6 +298,7 @@ const editProduct= async (req,res)=>{
 const deleteSingleImage=async (req,res)=>{
     try {
         const {imageNameToServer,productIdToServer}=req.body;
+        console.log(req.body);
         const product =await Product.findByIdAndUpdate(productIdToServer,{$pull:{productImage:imageNameToServer}})
         const imagePath=path.join('public','uploads','re-image',imageNameToServer)
         if(fs.existsSync(imagePath)){
