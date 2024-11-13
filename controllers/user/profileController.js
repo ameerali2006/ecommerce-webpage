@@ -20,7 +20,14 @@ function genrateOtp() {
     return otp;
 }
 
-
+const securePassword= async (password)=>{
+    try {
+        const passwordHash =await bcrypt.hash(password,10);
+        return passwordHash
+    } catch (error) {
+        
+    }
+}
 
 const sendVerificationEmail = async (email, otp) => {
     try {
@@ -102,6 +109,77 @@ const forgotEmailValid = async (req, res) => {
 
     } catch (error) {
         res.redirect('/pageNotFound')
+    }
+}
+
+const verifyForgotPassOtp=async (req,res)=>{
+    try {
+        const enteredOtp= req.body.otp
+        if(enteredOtp==req.session.userOtp){
+            res.json({
+                success:true,
+                redirectUrl:'/reset-password'
+
+            })
+        }else{
+            res.json({
+                success:false,
+                message:"OTP not matching"
+
+            })
+        }
+
+
+
+    } catch (error) {
+        console.error('Error during OTP verification:', error);
+        res.status(500).json({
+            success:false,
+            message:"An error occured. Please try again"
+
+        })
+    }
+}
+const getResetPasspage=async (req,res)=>{
+    try {
+        res.render('reset-password')
+    } catch (error) {
+        res.redirect('/admin/pageerror')
+    }
+}
+
+const resendOtp= async (req,res)=>{
+    try {
+        const otp =genrateOtp();
+        req.session.userOtp=otp;
+        const email =req.session.email;
+        console.log('resending otp email:',email);
+        const emailSend=await sendVerificationEmail(email,otp);
+        if(emailSend){
+            console.log('Resend Otp',otp);
+            res.status(200).json({success:true,message:'Resend OTp Successfully'})
+        }
+    } catch (error) {
+        console.error('error in resend otp',error);
+        res.status(500).json({success:false,message:'internal server error'})
+
+        
+    }
+}
+const postNewPassword=async (req,res)=>{
+    try {
+        const {newPass1,newPass2}= req.body;
+        const email= req.session.email;
+        if(newPass1==newPass2){
+            const passwordHash= await securePassword(newPass1)
+            await User.updateOne({email:email},{$set:{password:passwordHash}})
+            res.redirect('/login')
+        }else{
+            res.render('reset-password',{message:'Password not match'})
+        }
+    } catch (error) {
+        res.redirect('/admin/pageerror')
+        
     }
 }
 
@@ -252,6 +330,28 @@ const deleteAddress= async (req,res)=>{
         
     }
 }
+const updateProfile=async (req,res)=>{
+    try {
+        const {dname,phone}=req.body;
+        const userId=req.session.user;
+        if(userId){
+            const profileUpdate= await User.findByIdAndUpdate({_id:userId},{$set:{name:dname,phone:phone}},{new:true})
+            if(profileUpdate){
+                console.log('profile up');
+    
+                console.log('upateed success fully');
+                res.redirect('/userProfile')
+            }
+        }else{
+            console.log('user not found')
+        }
+        
+    } catch (error) {
+        console.error('error on updateprofile',error);
+        res.redirect('/admin/pageerror')
+        
+    }
+}
 
 module.exports = {
     getForgotPassPage,
@@ -262,7 +362,13 @@ module.exports = {
     postAddAddress,
     editAddress,
     postEditAddress,
-    deleteAddress
+    deleteAddress,
+    verifyForgotPassOtp,
+    getResetPasspage,
+    resendOtp,
+    postNewPassword,
+    updateProfile
+    
 
 
 

@@ -6,6 +6,7 @@ const Category =require('../../models/categorySchema')
 const Product =require('../../models/productSchema')
 
 
+
 const loadHomepage= async (req,res)=>{
     try {
         const user = req.session.user

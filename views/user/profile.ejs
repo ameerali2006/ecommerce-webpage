@@ -93,7 +93,7 @@
             } else if (displayName.length > 50) {
                 document.getElementById('nameErr').textContent = 'Display name cannot exceed 50 characters';
                 isValid = false;
-            } else if (!/^[a-zA-Z]+$/.test(displayName)) {
+            } else if (!/^[a-zA-Z\s]+$/.test(displayName)) {
                 document.getElementById('nameErr').textContent = 'Display name can only contain letters and spaces';
                 isValid = false;
             }

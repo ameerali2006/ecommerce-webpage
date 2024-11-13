@@ -61,7 +61,7 @@
      <h3 class="mb-30 text-center">Email Verification</h3>
    </div>
    <div class="otp-container">
-     <form onsubmit="">
+     <form  onsubmit="return validateOtpForm()">
        <div class="form-group">
          <label for="otp">Enter OTP:</label>
          <input type="text" id="otp" name="otp" class="form-control" required>
@@ -74,7 +74,7 @@
        <div class="otp-timer" id="otpTimer"></div>
      </div>
      <div class="form-group">
-       <button type="button" class="btn btn-link resend-button" onclick="">Resend OTP</button>
+       <button type="button" class="btn btn-link resend-button" onclick="resendOtp()">Resend OTP</button>
      </div>
      <%if(locals.message && message.length>0){%>
        <div class="alert alert-danger mt-3">
@@ -93,12 +93,29 @@
   let otpTimerIntervel;
   let timer=60
 
-  function starOtpTimer(){
+  function updateTimerColor(percentage){
+    const timerElement= document.getElementById('otpTimer')
+    if(percentage>50){
+      timerElement.style.backgroundColor='#28a745';
+    }else if(percentage>25){
+      timerElement.style.backgroundColor='#ffc107';
+
+    }else{
+      timerElement.style.backgroundColor='red';
+
+    }
+  
+  
+  }
+
+  function startOtpTimer(){
     const timerElement=document.getElementById('otpTimer');
-    otpTimerIntervel=setIntervel(function(){
+    otpTimerIntervel=setInterval(function(){
       const minutes=Math.floor(timer/60 )
       const seconds=timer%60;
       timerElement.textContent=`${minutes}:${seconds<10?'0':''}${seconds}`;
+      updateTimerColor((timer/60)*100)
+      
       if(--timer<0){
         clearInterval(otpTimerIntervel);
         timerElement.textContent='Expired';
@@ -113,7 +130,78 @@
   function initializeOtpTimer(){
     clearInterval(otpTimerIntervel);
     timer=60;
-    starOtpTimer();
+    startOtpTimer();
+  }
+
+  function validateOtpForm(){
+    const otpInput=document.getElementById('otp').value;
+    $.ajax({
+      type:'post',
+      url:'/verify-passForgot-otp',
+      data:{otp:otpInput},
+      success:function(response){
+        if(response.success){
+          Swal.fire({
+            icon:'success',
+            title:'OTP Verified Successfully',
+            showConfirmButton:false,
+            timer:1500
+          }).then(()=>{
+            window.location.href= response.redirectUrl
+          })
+        }else{
+          Swal.fire({
+            icon:'error',
+            title:'Invalid OTP',
+            text:response.message
+          })
+        }
+      },
+      error:function(){
+        Swal.fire({
+          icon:'error',
+          title:'Error',
+          text:'Failed to verify Otp, please Try again.'
+        })
+      }
+
+    })
+    return false
+  }
+  function resendOtp(){
+    clearInterval(otpTimerIntervel);
+    timer=60;
+    startOtpTimer();
+    $.ajax({
+      type:'post',
+      url:'/resend-forgot-otp',
+      success:function (response){
+        if(response.success){
+          Swal.fire({
+            icon:'success',
+            title:'Resend Otp successful',
+            showConfirmButton:false,
+            timer:1500,
+          })
+        }else{
+          Swal.fire({
+            icon:'error',
+            title:'Error',
+            text:'Failed to resend OTP.Please try again.',
+
+            
+          })
+        }
+      },
+      error:function(){
+        Swal.fire({
+            icon:'error',
+            title:'Error',
+            text:'Failed to resend OTP. Please try again'
+          })
+      }
+
+    })
   }
 
 

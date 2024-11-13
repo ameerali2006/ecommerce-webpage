@@ -94,20 +94,39 @@
                                     <div class="bt-1 border-color-1 mt-30 mb-30"></div>
                                     <div class="detail-extralink">
                                         <div class="detail-qty border radius">
-                                            <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
-                                            <span class="qty-val">1</span>
-                                            <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
-                                        </div>
+                                            <a href="#" class="qty-down"><i onclick="updateQuantity(-1)"  class="fi-rs-angle-small-down"></i></a>
+                                            <input type="text" style="height: 25px;
+                                            width: 30px;
+                                            padding: 9px;" name="quantity" value="1" class="qty-val" id="qty-val">
+                                            <a href="#" class="qty-up"><i onclick="updateQuantity(1)" class="fi-rs-angle-small-up"></i></a>
+                                        </div>    
+                                        <!-- <div class="detail-qty border radius">
+                                            
+                                            <div class="qty-controls">
+                                                <a type="button" class="qty-up" onclick="updateQuantity(1)">
+                                                    <i class="fi-rs-angle-small-up"></i>
+                                                </a>
+                                                <input type="text" name="quantity" value="1" class="qty-val" id="qty-val"
+                                                readonly>
+                                                <a type="button" class="qty-down" onclick="updateQuantity(-1)">
+                                                    <i class="fi-rs-angle-small-down"></i>
+                                                </a>
+                                            </div>
+                                        </div>                                        -->
                                         <div class="product-extra-link2">
-                                            <button type="submit" class="button button-add-to-cart">Add to cart</button>
-                                            <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                            <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
+                                            
+                                            <form action="/addToCart?id=<%= data._id %>" method="POST"
+                                                style="display: inline; " onsubmit="syncQuantity()">
+                                                <input type="hidden" name="quantity" id="cart-quantity" value="1">
+                                                <button type="submit" class="btn btn-success">Add to cart</button>
+                                            </form>
+                                            <a aria-label="Add To Wishlist" class="action-btn hover-up"op href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
+                                            <a aria-label="Compare" class="action-btn hover-up" href="sh-compare.html"><i class="fi-rs-shuffle"></i></a>
                                         </div>
                                     </div>
                                     <ul class="product-meta font-xs color-grey mt-50">
-                                        <li class="mb-5">SKU: <a href="#">FWM15VKT</a></li>
-                                        <li class="mb-5">Tags: <a href="#" rel="tag">Cloth</a>, <a href="#" rel="tag">Women</a>, <a href="#" rel="tag">Dress</a> </li>
-                                        <li>Availability:<span class="in-stock text-success ml-5">8 Items In Stock</span></li>
+                                        
+                                        <li>Availability:<span class="in-stock text-success ml-5"><%=data.quantity%> Items In Stock</span></li>
                                     </ul>
                                 </div>
                                 <!-- Detail Info -->
@@ -444,5 +463,25 @@
     </section>
 
 </main>
+
+<script>
+    function syncQuantity() {
+                const qtyVal = document.getElementById('qty-val').value;
+                document.getElementById('cart-quantity').value = qtyVal;
+            }
+    
+    const maxQuantity='<%=data.quantity%>'
+   function updateQuantity(change) {
+                const qtyInput = document.getElementById('qty-val');
+                let currentQty = parseInt(qtyInput.value);
+                const maxLimit = 5;
+                currentQty = Math.max(1, Math.min(maxQuantity, maxLimit, currentQty + change));
+                qtyInput.value = currentQty;
+            }
+
+
+</script>
+
+
 
 <%-include('../../views/partials/user/footer')%>

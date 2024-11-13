@@ -4,6 +4,14 @@ const router=express.Router();
 const userController = require('../controllers/user/userController');
 const passport = require('passport');
 const profileController = require('../controllers/user/profileController');
+const cartController = require('../controllers/user/cartController');
+const User=require('../models/userSchema')
+
+router.use(async(req, res, next) => {
+    const userData = await User.findById(req.session.user);
+    res.locals.user = userData || null;
+    next();
+});
 
 router.get('/pageNotFound',userController.pageNotFound)
 
@@ -28,6 +36,11 @@ router.get('/logout',userController.logout)
 
 router.get('/forgot-password',profileController.getForgotPassPage)
 router.post('/forgot-email-valid',profileController.forgotEmailValid);
+router.post('/verify-passForgot-otp',profileController.verifyForgotPassOtp)
+router.get('/reset-password',profileController.getResetPasspage)
+router.post('/resend-forgot-otp',profileController.resendOtp)
+router.post('/reset-password',profileController.postNewPassword)
+
 
 router.get('/productDetails',userController.getProductDetails)
 
@@ -42,7 +55,13 @@ router.post('/editAddress',userAuth,profileController.postEditAddress)
 
 router.get('/deleteAddress',userAuth,profileController.deleteAddress)
 
+router.post('/updateprofile',userAuth,profileController.updateProfile)
 
+router.post('/addToCart',userAuth,cartController.addToCart)
+router.get('/showCart',cartController.getShowCart)
+router.get('/showCart/remove',cartController.removeFromCart)
+router.get('/showCart/clearCart',cartController.clearCart)
+router.post('/showCart/updateCartQuantity',cartController.updateQuantity)
 
 
 module.exports=router 
