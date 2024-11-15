@@ -9,6 +9,12 @@ const orderSchema=new Schema({
         default:()=>uuidv4(),
         unique:true
     },
+    user:{
+        type:Schema.Types.ObjectId,
+        ref:'User',
+        required:true
+    },
+
     orderedItems:[{
         product:{
             type:Schema.Types.ObjectId,
@@ -38,8 +44,18 @@ const orderSchema=new Schema({
     },
     address:{
         type:Schema.Types.ObjectId,
-        ref:'User',
+        ref:'Address',
         required:true
+    },
+    paymentMethod: {
+        type: String,
+        enum: ['COD', 'Online'],
+        required: true
+    },
+    paymentStatus: {
+        type: String,
+        enum: ['Pending', 'Processing', 'Completed', 'Failed'],
+        default: 'Pending'
     },
     invoiceDate:{
         type:Date
@@ -56,8 +72,13 @@ const orderSchema=new Schema({
         required:true
     },
     couponApplied:{
-        typr:Boolean,
+        type:Boolean,
         default:false
+    },
+    cancelleationReson:{
+        type:String,
+        default:'',
+
     }
 })
 const Order= mongoose.model('Order',orderSchema)

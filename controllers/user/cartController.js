@@ -103,11 +103,18 @@ const removeFromCart =async (req,res)=>{
         if(!cart){
             return res.redirect('/')
         }
+        console.log('working');
 
         const prodIndex=cart.items.findIndex(item=>item.productId.toString() === productId)
-        
-        if(prodIndex){
+        console.log('working2');
+        console.log(prodIndex);
+
+        if(prodIndex||prodIndex==0){
             cart.items.splice(prodIndex,1)
+            console.log(cart.items);
+            console.log('working3');
+
+
             await cart.save(); 
         }
         res.redirect('/showCart')
@@ -144,24 +151,46 @@ const clearCart= async (req,res)=>{
 }
 const updateQuantity=async (req,res)=>{
     try {
+        console.log('start');
         const {id,quantity}=req.query;
+        console.log(id,quantity);
         const userId=req.session.user;
+        console.log(userId);
         
         if(!userId){
+            console.log('no user');
+
             return res.status(401).json({error:'User not loggind'}).redirect('/login')
         }
         const cart=await Cart.findOne({userId:userId})
         if(!cart){
+            console.log('no cart');
+
             return res.status(404).json({error:'cart not found '}).redirect('/');
 
         }
         const index=cart.items.findIndex(item=>item.productId.toString()===id);
+        console.log(index);
+
         if(index==-1){
             return res.status(404).json({error:'product is not find'}).redirect('/')
         }
-        cart.items[index].quantity=parseInt(quantity,10);
-        cart.items[index].totalPrice=cart.items[index].salePrice*cart.items[index].quantity;
+        const newQuantity = parseInt(quantity, 10);
+        if (isNaN(newQuantity) || newQuantity <= 0) {
+            console.log('Invalid quantity:', quantity);
+            return res.status(400).json({ error: 'Invalid quantity value' });
+        }
+
+        const salePrice = cart.items[index].price;
+        if (isNaN(salePrice) || salePrice <= 0) {
+            console.log('Invalid salePrice:', salePrice);
+            return res.status(400).json({ error: 'Invalid price value for the product' });
+        }
+        cart.items[index].quantity=newQuantity;
+        cart.items[index].totalPrice=salePrice*newQuantity
         await cart.save();
+        console.log('saved');
+
         res.json({updateTotalPrice:cart.items[index].totalPrice})
 
     } catch (error) {

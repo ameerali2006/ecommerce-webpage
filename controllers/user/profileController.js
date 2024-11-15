@@ -223,18 +223,19 @@ const postAddAddress = async (req, res) => {
     try {
         const userId = req.session.user;
         const userData = await User.findOne({ _id: userId })
+        console.log(req.body)
         const { addressType, name, city, landMark, state, pincode, phone, altPhone } = req.body
-
+        
         const userAddress = await Address.findOne({ userId: userData._id })
         if (!userAddress) {
             const newAddress = new Address({
                 userId: userData._id,
-                address: [{ addressType, name, city, landMark, state, pincode, phone, altPhone }]
+                address: [{ addressType, name, city, landMark:landMark, state, pincode, phone, altPhone }]
 
             })
             await newAddress.save()
         } else {
-            userAddress.address.push({ addressType, name, city, landMark, state, pincode, phone, altPhone })
+            userAddress.address.push({ addressType, name, city, landMark:landMark, state, pincode, phone, altPhone })
             await userAddress.save()
 
 
@@ -246,7 +247,7 @@ const postAddAddress = async (req, res) => {
 
     } catch (error) {
         console.error('error is addaddress', error);
-        res.redirect('/admin/pageerror')
+        res.render('page-404')
 
     }
 }

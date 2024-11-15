@@ -1,0 +1,107 @@
+<%- include('../partials/user/header') %>
+
+<!-- Include SweetAlert library (CDN) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+<main class="main">
+    <!-- Breadcrumb -->
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="/" rel="nofollow">Home</a>
+                <span></span> Shop
+                <span></span> Your Orders
+            </div>
+        </div>
+    </div>
+
+    <section class="pt-150 pb-150">
+        <div class="container">
+            <div class="row">
+                <!-- Sidebar -->
+                <aside class="col-md-3">
+                    <div class="sidebar border p-3 rounded shadow-sm">
+                        <h4 class="mb-3">Account Settings</h4>
+                        <ul class="list-unstyled">
+                            <li><a href="/profile" class="text-decoration-none text-dark">Profile</a></li>
+                            <li><a href="/orders" class="text-decoration-none text-dark">Orders</a></li>
+                            <li><a href="/wishlist" class="text-decoration-none text-dark">Wishlist</a></li>
+                            <li><a href="/address" class="text-decoration-none text-dark">Address</a></li>
+                            <li><a href="/wallet" class="text-decoration-none text-dark">Wallet</a></li>
+                            <li><a href="/logout-user" class="text-decoration-none text-danger">Logout</a></li>
+                        </ul>
+                    </div>
+                </aside>
+
+                <!-- Orders Section -->
+                <div class="col-md-9">
+                    <h4 class="mb-4">Your Orders</h4>
+                    <% if (orders && orders.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Total</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% orders.forEach(order => { %>
+                                        <tr>
+                                            <td>#<%= order.orderId %></td>
+                                            <td><%= order.createdOn.toLocaleDateString() %></td>
+                                            <td><span class="badge bg-<%= order.status === 'Cancelled' ? 'danger' : (order.status === 'Completed' ? 'success' : 'warning') %>">
+                                                <%= order.status %></span></td>
+                                            <td>₹<%= order.totalPrice.toLocaleString() %></td>
+                                            <td>
+                                                <a href="/order-details?id=<%= order._id %>" class="btn btn-sm btn-success me-2">View Details</a>
+                                                <% if (order.status !== 'Cancelled' && order.status !== 'Completed') { %>
+                                                    <button class="btn btn-sm btn-danger"
+                                                        onclick="confirmCancelOrder('<%= order._id %>')">Cancel</button>
+                                                <% } %>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <p class="text-muted">You have no orders yet.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<%- include('../partials/user/footer') %>
+
+<script>
+    function confirmCancelOrder(orderId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, cancel it!',
+            input: 'text',
+            inputPlaceholder: 'Enter reason for cancellation',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'You need to provide a reason for cancellation!'
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const reason = result.value;
+                window.location.href = `/cancel-order?id=${orderId}&reason=${encodeURIComponent(reason)}`;
+            }
+        });
+    }
+</script>

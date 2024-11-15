@@ -6,6 +6,8 @@ const passport = require('passport');
 const profileController = require('../controllers/user/profileController');
 const cartController = require('../controllers/user/cartController');
 const User=require('../models/userSchema')
+const checkOutController = require('../controllers/user/checkOutController');
+const orderController = require('../controllers/user/orderController');
 
 router.use(async(req, res, next) => {
     const userData = await User.findById(req.session.user);
@@ -62,6 +64,14 @@ router.get('/showCart',cartController.getShowCart)
 router.get('/showCart/remove',cartController.removeFromCart)
 router.get('/showCart/clearCart',cartController.clearCart)
 router.post('/showCart/updateCartQuantity',cartController.updateQuantity)
+
+router.get('/getCheckOut',checkOutController.getCheckOut)
+router.post('/postCheckOut',checkOutController.CheckOut)
+
+router.get('/orders',orderController.getOrders)
+router.get('/order-details',orderController.getOrderDetails)
+router.get('/cancel-order',orderController.getOrderCancel)
+
 
 
 module.exports=router 

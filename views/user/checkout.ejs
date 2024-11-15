@@ -1,0 +1,379 @@
+<%- include("../../views/partials/user/header") %>
+    <style>
+        /* Address Card Styling */
+        .address-card {
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #f9f9f9;
+        }
+
+        .address-card:hover {
+            background-color: #f1f1f1;
+        }
+
+        .address-card.selected {
+            border: 2px solid #28a745;
+            /* Green border for selected card */
+            background-color: #e9f7e9;
+            /* Light green background for selected card */
+        }
+
+        .address-card strong {
+            font-size: 1em;
+            color: #333;
+        }
+
+        .address-card p {
+            margin: 5px 0;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        /* Radio Button Styling */
+        .address-card input[type="radio"] {
+            display: none;
+            /* Hide the default radio button */
+        }
+
+        .address-card.selected input[type="radio"] {
+            background-color: #28a745;
+        }
+    </style>
+    <style>
+        /* Payment Option Styling */
+        .payment-option {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .payment-option:hover {
+            border-color: #046963;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Selected Payment Option */
+        .payment-option input[type="radio"]:checked+label {
+            border-color: #28a745;
+            color: #046963;
+            font-weight: bold;
+        }
+
+        /* Radio Button Styling */
+        .payment-option input[type="radio"] {
+            display: none;
+        }
+
+        /* Label Styling */
+        .payment-option label {
+            cursor: pointer;
+            font-size: 16px;
+            color: #333;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Payment Icon */
+        .payment-icon {
+            color: #046963;
+        }
+
+        /* Payment Description */
+        .payment-description {
+            font-size: 14px;
+            color: #555;
+            margin-left: 35px;
+        }
+
+        /* Styling for Checked Payment Option */
+        .payment-option.selected {
+            border: 2px solid #046963;
+            background-color: #e9f7e9;
+        }
+    </style>
+
+
+
+    <script>
+        function selectPayment(paymentId) {
+            // Deselect all payment options
+            document.querySelectorAll('.payment-option').forEach(option => option.classList.remove('selected'));
+
+            // Add selected class to the clicked option
+            document.getElementById(paymentId).parentElement.classList.add('selected');
+
+            // Set the radio button to checked
+            document.getElementById(paymentId).checked = true;
+        }
+
+        // Initialize selection for the default checked option
+        document.querySelector('.payment-option input[type="radio"]:checked').parentElement.classList.add('selected');
+    </script>
+
+    <main class="main">
+        <div class="page-header breadcrumb-wrap">
+            <div class="container">
+                <div class="breadcrumb">
+                    <a href="/" rel="nofollow">Home</a>
+                    <span></span> Shop
+                    <span></span> Checkout
+                </div>
+            </div>
+        </div>
+        <section class="mt-50 mb-50">
+            <div class="container">
+                <div class="row">
+                    <!-- <div class="col-lg-6 mb-sm-15">
+                    
+                    <div class="panel-collapse collapse login_form" id="loginform">
+                        <div class="panel-body">
+                            <p class="mb-30 font-sm">If you have shopped with us before, please enter your details below. If you are a new customer, please proceed to the Select Address section.</p>
+                            <form method="post" action="/login">
+                                <div class="form-group">
+                                    <input type="text" name="email" placeholder="Username Or Email">
+                                </div>
+                                <div class="form-group">
+                                    <input type="password" name="password" placeholder="Password">
+                                </div>
+                                <div class="login_footer form-group">
+                                    <div class="chek-form">
+                                        <div class="custome-checkbox">
+                                            <input class="form-check-input" type="checkbox" name="remember" id="remember">
+                                            <label class="form-check-label" for="remember"><span>Remember me</span></label>
+                                        </div>
+                                    </div>
+                                    <a href="#">Forgot password?</a>
+                                </div>
+                                <div class="form-group">
+                                    <button class="btn btn-md" name="login">Log in</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div> -->
+                    <div class="col-lg-6">
+                        <div class="toggle_info">
+                            <span><i class="fi-rs-label mr-10"></i><span class="text-muted">Have a coupon?</span>
+                                <a href="#coupon" data-bs-toggle="collapse" class="collapsed"
+                                    aria-expanded="false">Click here to enter your code</a>
+                            </span>
+                        </div>
+                        <div class="panel-collapse collapse coupon_form" id="coupon">
+                            <div class="panel-body">
+                                <p class="mb-30 font-sm">If you have a coupon code, please apply it below.</p>
+                                <form method="post" action="/apply-coupon">
+                                    <div class="form-group">
+                                        <input type="text" name="coupon" placeholder="Enter Coupon Code...">
+                                    </div>
+                                    <div class="form-group">
+                                        <button class="btn btn-md">Apply Coupon</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="divider mt-50 mb-50"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="checkout-section mb-4">
+                            <h4 class="mb-4">Select Your Address</h4>
+                            <div id="address-container">
+                                <% if (addresses.length> 0) { %>
+                                    <% addresses.forEach((addr, i)=> { %>
+                                        <div class="address-card" onclick="selectAddress(this, '<%= addr._id %>')">
+                                            <input type="radio" name="selectedAddress" id="address-<%= i %>"
+                                                value="<%= JSON.stringify(addr) %>" class="">
+
+                                            <div class="card-body">
+                                                <strong class="d-block mb-2">
+                                                    <%= addr.addressType %>
+                                                </strong>
+                                                <p class="mb-1">
+                                                    <%= addr.name %>
+                                                </p>
+                                                <p class="mb-1">
+                                                    <%= addr.streetAddress %>
+                                                </p>
+                                                <p class="mb-1">
+                                                    <%= addr.city %>, <%= addr.state %> - <%= addr.pincode %>
+                                                </p>
+                                                <p class="mb-0">
+                                                    <%= addr.phone %>
+                                                        <% if (addr.altPhone) { %>
+                                                            | <%= addr.altPhone %>
+                                                                <% } %>
+                                                </p>
+                                            </div>
+
+                                        </div>
+                                        <% }); %>
+                                            <% } else { %>
+                                                <div class="alert alert-info">
+                                                    <p class="mb-0">No addresses available. <a href="/add-address"
+                                                            class="alert-link">Add one now</a></p>
+                                                </div>
+                                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="order_review">
+                            <div class="mb-20">
+                                <h4>Your Orders</h4>
+                            </div>
+                            <div class="table-responsive order_table text-center">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="2">Product</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% cart.forEach(item=> { %>
+                                            <tr>
+                                                <td class="image product-thumbnail"><img
+                                                        src="/uploads/re-image/<%=item.productId.productImage[0]%>"
+                                                        alt="#"></td>
+                                                <td>
+                                                    <h5><a href="/productDetails/<%= item.id %>">
+                                                            <%= item.productId.productName %>
+                                                        </a></h5>
+                                                    <span class="product-qty">x <%= item.quantity %></span>
+                                                </td>
+                                                <td>$<%= item.totalPrice %>
+                                                </td>
+                                            </tr>
+                                            <% }); %>
+                                                <tr>
+                                                    <th>SubTotal</th>
+                                                    <td class="product-subtotal" colspan="2">$<%= cartTotal %>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Shipping</th>
+                                                    <td colspan="2"><em>Free Shipping</em></td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Total</th>
+                                                    <td colspan="2" class="product-subtotal"><span
+                                                            class="font-xl text-brand fw-900">$<%= cartTotal %></span>
+                                                    </td>
+                                                </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="bt-1 border-color-1 mt-30 mb-30"></div>
+                            <form id="orderForm" class="mt-4" method="post" action="/postCheckOut" >
+                                <div class="payment-methods">
+                                    <h5 class="payment-section-title">Choose Payment Method</h5>
+
+                                    <div class="payment-option" onclick="selectPayment('cod')">
+                                        <input type="radio" name="payment_method" id="cod" value="COD" checked>
+                                        <label for="cod">
+                                            Cash on Delivery
+                                            <svg class="payment-icon" width="24" height="24" viewBox="0 0 24 24"
+                                                fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="2" y="4" width="20" height="16" rx="2" />
+                                                <line x1="2" y1="10" x2="22" y2="10" />
+                                            </svg>
+                                        </label>
+                                        <div class="payment-description">Pay when your order is delivered</div>
+                                    </div>
+<!-- 
+                                    <div class="payment-option" onclick="selectPayment('online')">
+                                        <input type="radio" name="payment_method" id="online" value="Online">
+                                        <label for="online">
+                                            Online Payment
+                                            <svg class="payment-icon" width="24" height="24" viewBox="0 0 24 24"
+                                                fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                                                <line x1="1" y1="10" x2="23" y2="10" />
+                                            </svg>
+                                        </label>
+                                        <div class="payment-description">Pay securely with Razorpay</div>
+                                    </div> -->
+                                </div>
+
+                                <!-- Hidden Fields -->
+                                 <input type="hidden" name="addressId" id="addressId" >
+                                 <input type="hidden" name="finalPrice" id="finalPrice" value="<%= cartTotal%>">
+
+
+
+                                <button type="submit" class="btn-place-order" >
+                                    Place Order
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script>
+        function selectAddress (element,addressId){
+            document.querySelectorAll('.address-card').forEach(card => {
+            card.addEventListener('click', function () {
+                document.querySelectorAll('.address-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+            element.classList.add('selected');
+            document.getElementById('addressId').value = addressId;
+            element.querySelector('input[type="radio"]').checked = true;
+        });
+        }
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById('orderForm').addEventListener('submit', function (e) {
+            // Prevent form submission initially
+            e.preventDefault();
+    
+            // Validate address selection
+            const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+            if (!selectedAddress) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Select Address',
+                    text: 'Please select an address before placing your order.',
+                });
+                return;
+            }
+    
+            // Validate payment method selection
+            const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
+            if (!selectedPayment) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Select Payment Method',
+                    text: 'Please select a payment method before placing your order.',
+                });
+                return;
+            }
+    
+            // If both validations pass, submit the form
+            this.submit();
+        });
+    </script>
+    
+    <%- include("../../views/partials/user/footer") %>
