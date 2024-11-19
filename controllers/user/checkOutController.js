@@ -4,6 +4,14 @@ const Product =require('../../models/productSchema')
 const Category =require('../../models/categorySchema')
 const Address =require('../../models/addressSchema')
 const Order =require('../../models/orderSchema')
+const Razorpay = require('razorpay');
+const env = require('dotenv').config()
+
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+});
+
 
 
 
@@ -51,7 +59,7 @@ const CheckOut = async (req, res) => {
             console.log('User not found');
             return res.redirect('/login');
         }
-
+        
         // Retrieve the user's cart
         const cart = await Cart.findOne({ userId }).populate('items.productId');
         if (!cart || cart.items.length === 0) {
@@ -88,6 +96,18 @@ const CheckOut = async (req, res) => {
 
         // Save the order and handle errors if any
         await createOrder.save();
+        for (const item of orderedItems) {
+            const product = await Product.findById(item.product);
+            if (product) {
+                product.quantity = product.quantity - item.quantity;
+                if (product.quantity < 0) {
+                    console.error(`Stock insufficient for product ID: ${product._id}`);
+                    return res.status(400).send(`Insufficient stock for product: ${product.name}`);
+                }
+                await product.save();
+            }
+        }
+        
         cart.items=[];
         await cart.save()
         console.log('Order saved successfully');

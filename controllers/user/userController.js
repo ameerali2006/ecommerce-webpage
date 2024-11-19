@@ -288,6 +288,56 @@ const getProductDetails= async (req,res)=>{
     }
 }
 
+const sortProducts= async (req,res)=>{
+    try {
+        console.log('dsorting')
+        const { sortBy } = req.query;
+        let sortQuery = {};
+
+        switch (sortBy) {
+            case 'price-low':
+                sortQuery = { salePrice: 1 };
+                break;
+            case 'price-high':
+                sortQuery = { salePrice: -1 };
+                break;
+            case 'az':
+                sortQuery = { productName: 1 };
+                break;
+            case 'za':
+                sortQuery = { productName: -1 };
+                break;
+            case 'new':
+                sortQuery = { createdAt: -1 };
+                break;
+            case 'popularity':
+                // Assuming you have a field tracking product views or sales
+                sortQuery = { popularityScore: -1 };
+                break;
+            case 'rating':
+                // Assuming you have a field for average ratings
+                sortQuery = { averageRating: -1 };
+                break;
+            case 'featured':
+                // Assuming you have a boolean field for featured products
+                sortQuery = { isFeatured: -1 };
+                break;
+            default:
+                sortQuery = {createdAt: -1};
+        }
+
+        const products = await Product.find()
+            .populate('category')
+            .sort(sortQuery)
+            .exec();
+
+        res.json(products);
+    } catch (error) {
+        console.error('Error sorting products:', error);
+        res.status(500).json({ error: 'Failed to sort products' });
+    }
+}
+
   
 
 
@@ -303,5 +353,6 @@ module.exports={
     loadLogin,
     login,
     logout,
-    getProductDetails
+    getProductDetails,
+    sortProducts,
 }

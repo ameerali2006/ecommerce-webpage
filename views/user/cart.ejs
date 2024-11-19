@@ -1,6 +1,7 @@
 
 <%- include('../partials/user/header') %>
-
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
 <div class="mobile-header-active mobile-header-wrapper-style">
     <div class="mobile-header-wrapper-inner">
         <div class="mobile-header-top">
@@ -259,43 +260,76 @@
     </section>
 </main>
 <script>
-    function confirmRemove() {
-        return confirm("Are you sure you want to remove this item from your cart?");
-    }
-    
-    document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('.qty-up, .qty-down').forEach(button => {
-            button.addEventListener('click', async (event) => {
-                event.preventDefault();
-                const isIncrement = button.classList.contains('qty-up');
-                const productRow = button.closest('tr');
-                const productId = productRow.querySelector('.action a').getAttribute('href').split('=')[1];
-                const qtyDisplay = productRow.querySelector('.qty-val');
-                let quantity = parseInt(qtyDisplay.innerText, 10);
-                quantity = isIncrement ? quantity + 1 : Math.max(1, quantity - 1);
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.qty-up, .qty-down').forEach(button => {
+        button.addEventListener('click', async (event) => {
+            event.preventDefault();
+            const isIncrement = button.classList.contains('qty-up');
+            const productRow = button.closest('tr');
+            const productId = productRow.querySelector('.action a').getAttribute('href').split('=')[1];
+            const qtyDisplay = productRow.querySelector('.qty-val');
+            let quantity = parseInt(qtyDisplay.innerText, 10);
 
-                qtyDisplay.innerText = quantity;
+            // Check maximum limit for increment before updating anything
+            if (isIncrement && quantity >= 5) {
+                Swal.fire({
+                    title: 'Quantity Limit Reached',
+                    text: 'Maximum quantity limit is 5 items per product',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#3085d6'
+                });
+                return; // Exit early without updating quantity
+            }
 
-                try {
-                    const response = await fetch(`/showCart/updateCartQuantity?id=${productId}&quantity=${quantity}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    if (!response.ok) throw new Error('Failed to update quantity');
-                    
-                    const data = await response.json();
-                    productRow.querySelector('[data-title="Cart"]').innerText = data.updatedTotalPrice;
-                    window.location.reload()
-                } catch (error) {
-                    console.error('Error updating quantity:', error);
-                }
-            });
+            // Only update quantity if we haven't hit the limit
+            quantity = isIncrement ? quantity + 1 : Math.max(1, quantity - 1);
+            
+            try {
+                const response = await fetch(`/showCart/updateCartQuantity?id=${productId}&quantity=${quantity}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!response.ok) throw new Error('Failed to update quantity');
+                
+                const data = await response.json();
+                qtyDisplay.innerText = quantity; // Update display only after successful API call
+                productRow.querySelector('[data-title="Cart"]').innerText = data.updatedTotalPrice;
+                window.location.reload()
+            } catch (error) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Failed to update quantity',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#3085d6'
+                });
+                console.error('Error updating quantity:', error);
+            }
         });
     });
+});
+
+// Modified remove confirmation function to use SweetAlert
+function confirmRemove() {
+    return Swal.fire({
+        title: 'Are you sure?',
+        text: "You want to remove this item from cart?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, remove it!',
+        cancelButtonText: 'No, keep it',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+    }).then((result) => {
+        return result.isConfirmed;
+    });
+}
 
 
 </script>
+
 
 <%- include('../partials/user/footer') %>

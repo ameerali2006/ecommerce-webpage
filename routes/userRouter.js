@@ -43,7 +43,7 @@ router.get('/reset-password',profileController.getResetPasspage)
 router.post('/resend-forgot-otp',profileController.resendOtp)
 router.post('/reset-password',profileController.postNewPassword)
 
-
+router.get('/sort-products',userController.sortProducts);
 router.get('/productDetails',userController.getProductDetails)
 
 router.get('/userProfile',userAuth,profileController.userProfile)
@@ -71,6 +71,8 @@ router.post('/postCheckOut',checkOutController.CheckOut)
 router.get('/orders',orderController.getOrders)
 router.get('/order-details',orderController.getOrderDetails)
 router.get('/cancel-order',orderController.getOrderCancel)
+
+router.post('/apply-coupon',orderController.applyCoupon)
 
 
 

@@ -51,7 +51,7 @@
 
                             <td class="text-end">
                                 <%if(data[i].isBlocked==false){%>
-                                <a href="/admin/blockCustomer?id=<%=data[i]._id%>" class="btn btn-danger rounded font-sm mt-15">Block</a>
+                                <a href="/admin/blockCustomer?id=<%=data[i]._id%>" onclick="return confirm('are yoou sure you wand to block this user')" class="btn btn-danger rounded font-sm mt-15">Block</a>
                                 <%}else{%>
                                     <a href="/admin/unblockCustomer?id=<%=data[i]._id%>" class="btn btn-success rounded font-sm mt-15">Unblock</a>
                                 <%}%>

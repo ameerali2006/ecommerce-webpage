@@ -1,4 +1,41 @@
 <%-include('../../views/partials/user/header')%>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<style>
+    /* Container styling */
+    .sort {
+        display: flex;
+        justify-content: flex-start; /* Align to the left */
+        align-items: center; /* Center vertically */
+        margin: 10px 0; /* Add some spacing */
+    }
+
+    /* Dropdown styling */
+    .sort-select {
+        width: 200px; /* Adjust as needed */
+        padding: 10px;  
+        font-size: 16px;
+        font-family: Arial, sans-serif;
+        border: 1px solid #ddd; /* Subtle border */
+        border-radius: 5px; /* Rounded corners */
+        background-color: #f9f9f9; /* Light background */
+        cursor: pointer;
+        transition: all 0.3s ease; /* Smooth hover effect */
+    }
+
+    /* Hover effect */
+    .sort-select:hover {
+        background-color: #fff; /* Slightly brighter background */
+        border-color: #aaa; /* Darker border */
+    }
+
+    /* Focus effect */
+    .sort-select:focus {
+        outline: none; /* Remove default outline */
+        border-color: #007bff; /* Highlight border */
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Add glow */
+    }
+</style>
+
     <div class="mobile-header-active mobile-header-wrapper-style">
         <div class="mobile-header-wrapper-inner">
             <div class="mobile-header-top">
@@ -272,21 +309,24 @@
         </section> -->
         <section class="product-tabs section-padding position-relative wow fadeIn animated">
             <div class="bg-square"></div>
+            <div class="d-flex align-items-center gap-3">
+                
             <div class="container">
-                <div class="tab-header">
-                    <ul class="nav nav-tabs" id="myTab" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="nav-tab-one" data-bs-toggle="tab" data-bs-target="#tab-one" type="button" role="tab" aria-controls="tab-one" aria-selected="true">Featured</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="nav-tab-two" data-bs-toggle="tab" data-bs-target="#tab-two" type="button" role="tab" aria-controls="tab-two" aria-selected="false">Popular</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="nav-tab-three" data-bs-toggle="tab" data-bs-target="#tab-three" type="button" role="tab" aria-controls="tab-three" aria-selected="false">New added</button>
-                        </li>
-                    </ul>
-                    <a href="#" class="view-more d-none d-md-flex">View More<i class="fi-rs-angle-double-small-right"></i></a>
+                
+                <div class="sort">
+                    <select class="sort-select form-select" title="Sort products">
+                        <option selected disabled>Sort by</option>
+                        <option value="popularity">Popularity</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="rating">Average Ratings</option>
+                        <option value="featured">Featured</option>
+                        <option value="new">New Arrivals</option>
+                        <option value="az">Name: A to Z</option>
+                        <option value="za">Name: Z to A</option>
+                    </select>
                 </div>
+                
                 <!--End nav-tabs-->
                 <div class="tab-content wow fadeIn animated" id="myTabContent">
                     <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one">
@@ -322,6 +362,7 @@
                                             <span>$<%=products[i].salePrice%> </span>
                                             <span class="old-price">$<%=products[i].regularPrice%> </span>
                                         </div>
+                                        
                                         <div class="product-action-1 show">
                                             <a aria-label="Add To Cart" class="action-btn hover-up" href="/addToCart?id=<%=products[i]._id%>"><i class="fi-rs-shopping-bag-add"></i></a>
                                         </div>
@@ -1593,4 +1634,77 @@
             </div> 
         </section>-->
     </main>
+    
+
+    <script>
+        // Method 2: Using jQuery
+        $(document).ready(function() {
+            $('.form-select').on('change', async function(e) {
+                const sortBy = $(this).val();
+                try {
+                    // Make API call to get sorted products
+                    const response = await fetch(`/sort-products?sortBy=${sortBy}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch sorted products');
+                    }
+                    
+                    const products = await response.json();
+                    
+                    // Get the container where products are displayed
+                    const productGrid = $('.row.product-grid-4');
+                    
+                    // Clear existing products
+                    productGrid.empty();
+                    
+                    // Render sorted products
+                    products.forEach(product => {
+                        const productHtml = `
+                            <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+                                <div class="product-cart-wrap mb-30">
+                                    <div class="product-img-action-wrap">
+                                        <div class="product-img product-img-zoom">
+                                            <a href="/productDetails?id=${product._id}">
+                                                <img class="default-img" src="/uploads/re-image/${product.productImage[0]}" alt="${product.productImage[0]}">
+                                            </a>
+                                        </div>
+                                        <div class="product-action-1">
+                                            <a aria-label="Add To Wishlist" class="action-btn hover-up" href="/addtoWishlist?id=${product._id}"><i class="fi-rs-heart"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="product-content-wrap">
+                                        <div class="product-category">
+                                            <a href="shop-grid-right.html">${product.category.name}</a>
+                                        </div>
+                                        <h2>${product.productName}</h2>
+                                        <div class="rating-result" title="90%">
+                                            <span>
+                                                <span>${product.productOffer}</span>
+                                            </span>
+                                        </div>
+                                        <div class="product-price">
+                                            <span>$${product.salePrice}</span>
+                                            <span class="old-price">$${product.regularPrice}</span>
+                                        </div>
+                                        <div class="product-action-1 show">
+                                            <a aria-label="Add To Cart" class="action-btn hover-up" href="/addToCart?id=${product._id}"><i class="fi-rs-shopping-bag-add"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        productGrid.append(productHtml);
+                    });
+                    
+                } catch (error) {
+                    console.error('Error sorting products:', error);
+                }
+            });
+        });
+    </script>
     <%-include('../../views/partials/user/footer')%>

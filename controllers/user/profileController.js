@@ -79,14 +79,15 @@ const forgotEmailValid = async (req, res) => {
     try {
         const { email } = req.body;
         console.log(req.body);
-        const findUser = await User.findOne({ email: email })
+        const findUser = await User.findOne({ email: email,isBlocked:false })
+        
         console.log(findUser);
         if (findUser) {
             console.log('next is otp');
             const otp = genrateOtp();
             console.log('after otp');
 
-            const emailSend = await sendVerificationEmail(email, otp)
+            const emailSend = await sendVerificationEmail(email, otp) 
             console.log(emailSend);
             console.log(otp);
             console.log('is it');

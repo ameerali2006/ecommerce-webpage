@@ -1,5 +1,9 @@
 <%- include("../../views/partials/user/header") %>
     <style>
+        .d-none {
+            display: none !important;
+        }
+
         /* Address Card Styling */
         .address-card {
             padding: 15px;
@@ -103,7 +107,7 @@
         }
     </style>
 
-
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <script>
         function selectPayment(paymentId) {
@@ -134,55 +138,8 @@
         <section class="mt-50 mb-50">
             <div class="container">
                 <div class="row">
-                    <!-- <div class="col-lg-6 mb-sm-15">
-                    
-                    <div class="panel-collapse collapse login_form" id="loginform">
-                        <div class="panel-body">
-                            <p class="mb-30 font-sm">If you have shopped with us before, please enter your details below. If you are a new customer, please proceed to the Select Address section.</p>
-                            <form method="post" action="/login">
-                                <div class="form-group">
-                                    <input type="text" name="email" placeholder="Username Or Email">
-                                </div>
-                                <div class="form-group">
-                                    <input type="password" name="password" placeholder="Password">
-                                </div>
-                                <div class="login_footer form-group">
-                                    <div class="chek-form">
-                                        <div class="custome-checkbox">
-                                            <input class="form-check-input" type="checkbox" name="remember" id="remember">
-                                            <label class="form-check-label" for="remember"><span>Remember me</span></label>
-                                        </div>
-                                    </div>
-                                    <a href="#">Forgot password?</a>
-                                </div>
-                                <div class="form-group">
-                                    <button class="btn btn-md" name="login">Log in</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div> -->
-                    <div class="col-lg-6">
-                        <div class="toggle_info">
-                            <span><i class="fi-rs-label mr-10"></i><span class="text-muted">Have a coupon?</span>
-                                <a href="#coupon" data-bs-toggle="collapse" class="collapsed"
-                                    aria-expanded="false">Click here to enter your code</a>
-                            </span>
-                        </div>
-                        <div class="panel-collapse collapse coupon_form" id="coupon">
-                            <div class="panel-body">
-                                <p class="mb-30 font-sm">If you have a coupon code, please apply it below.</p>
-                                <form method="post" action="/apply-coupon">
-                                    <div class="form-group">
-                                        <input type="text" name="coupon" placeholder="Enter Coupon Code...">
-                                    </div>
-                                    <div class="form-group">
-                                        <button class="btn btn-md">Apply Coupon</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+
+
                 </div>
                 <div class="row">
                     <div class="col-12">
@@ -232,6 +189,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="col-md-6">
                         <div class="order_review">
                             <div class="mb-20">
@@ -263,7 +221,8 @@
                                             <% }); %>
                                                 <tr>
                                                     <th>SubTotal</th>
-                                                    <td class="product-subtotal" colspan="2">$<%= cartTotal %>
+                                                    <td class="product-subtotal" id="subtotalDisplay" colspan="2">$<%=
+                                                            cartTotal %>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -271,16 +230,49 @@
                                                     <td colspan="2"><em>Free Shipping</em></td>
                                                 </tr>
                                                 <tr>
+                                                    <th>Discount</th>
+                                                    <td id="discountDisplay" colspan="2"><em>$0</em></td>
+                                                </tr>
+                                                <tr>
                                                     <th>Total</th>
                                                     <td colspan="2" class="product-subtotal"><span
-                                                            class="font-xl text-brand fw-900">$<%= cartTotal %></span>
+                                                            class="font-xl text-brand fw-900" id="finalTotalDisplay">$
+                                                            <%= cartTotal %></span>
                                                     </td>
                                                 </tr>
                                     </tbody>
                                 </table>
                             </div>
+                            <div class="col-lg-12">
+                                <div class="toggle_info">
+                                    <span><i class="fi-rs-label mr-10"></i><span class="text-muted">Have a
+                                            coupon?</span>
+                                        <a href="#coupon" data-bs-toggle="collapse" class="collapsed"
+                                            aria-expanded="false">Click here to enter your code</a>
+                                    </span>
+                                </div>
+                                <div class="panel-collapse collapse coupon_form" id="coupon">
+                                    <div class="panel-body">
+                                        <p class="mb-30 font-sm">If you have a coupon code, please apply it below.</p>
+                                        <form id="couponForm">
+                                            <input type="hidden" id="finalPrice" name="finalPrice"
+                                                value="<%= cartTotal %>">
+                                            <div class="form-group">
+                                                <input type="text" id="couponCode" name="coupon"
+                                                    placeholder="Enter Coupon Code..." required>
+                                            </div>
+                                            <div class="form-group">
+                                                <button type="button" onclick="applyCoupon()" class="btn btn-md"
+                                                    id="applyCouponBtn">Apply Coupon</button>
+                                            </div>
+                                        </form>
+                                        <p id="couponMessage" class="text-success d-none"></p>
+                                        <p id="couponError" class="text-danger d-none"></p>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="bt-1 border-color-1 mt-30 mb-30"></div>
-                            <form id="orderForm" class="mt-4" method="post" action="/postCheckOut" >
+                            <form id="orderForm" class="mt-4" method="post" action="/postCheckOut">
                                 <div class="payment-methods">
                                     <h5 class="payment-section-title">Choose Payment Method</h5>
 
@@ -297,8 +289,8 @@
                                         </label>
                                         <div class="payment-description">Pay when your order is delivered</div>
                                     </div>
-<!-- 
-                                    <div class="payment-option" onclick="selectPayment('online')">
+
+                                    <div class="payment-option" id="razorpay-btn" onclick="selectPayment('online')">
                                         <input type="radio" name="payment_method" id="online" value="Online">
                                         <label for="online">
                                             Online Payment
@@ -310,16 +302,16 @@
                                             </svg>
                                         </label>
                                         <div class="payment-description">Pay securely with Razorpay</div>
-                                    </div> -->
+                                    </div>
                                 </div>
 
                                 <!-- Hidden Fields -->
-                                 <input type="hidden" name="addressId" id="addressId" >
-                                 <input type="hidden" name="finalPrice" id="finalPrice" value="<%= cartTotal%>">
+                                <input type="hidden" name="addressId" id="addressId">
+                                <input type="hidden" name="finalPrice" id="finalPrice" value="<%= cartTotal%>">
 
 
 
-                                <button type="submit" class="btn-place-order" >
+                                <button type="submit" class="btn-place-order">
                                     Place Order
                                 </button>
                             </form>
@@ -330,26 +322,27 @@
         </section>
     </main>
     <script>
-        function selectAddress (element,addressId){
+        function selectAddress(element, addressId) {
             document.querySelectorAll('.address-card').forEach(card => {
-            card.addEventListener('click', function () {
-                document.querySelectorAll('.address-card').forEach(c => c.classList.remove('selected'));
-                this.classList.add('selected');
+                card.addEventListener('click', function () {
+                    document.querySelectorAll('.address-card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+                element.classList.add('selected');
+                document.getElementById('addressId').value = addressId;
+                element.querySelector('input[type="radio"]').checked = true;
             });
-            element.classList.add('selected');
-            document.getElementById('addressId').value = addressId;
-            element.querySelector('input[type="radio"]').checked = true;
-        });
         }
 
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // address sestup
         document.getElementById('orderForm').addEventListener('submit', function (e) {
-            // Prevent form submission initially
+
             e.preventDefault();
-    
-            // Validate address selection
+
+
             const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
             if (!selectedAddress) {
                 Swal.fire({
@@ -359,8 +352,8 @@
                 });
                 return;
             }
-    
-            // Validate payment method selection
+
+
             const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
             if (!selectedPayment) {
                 Swal.fire({
@@ -370,10 +363,161 @@
                 });
                 return;
             }
-    
-            // If both validations pass, submit the form
+
+
             this.submit();
         });
+        // end of address setup
+
+
+
+
+        //  coupon setup
+        async function applyCoupon() {
+            const couponCodeInput = document.getElementById('couponCode');
+            const totalPriceElement = document.getElementById('finalPrice');
+            const discountDisplay = document.getElementById('discountDisplay');
+            const finalTotalDisplay = document.getElementById('finalTotalDisplay');
+            const couponMessage = document.getElementById('couponMessage');
+            const couponError = document.getElementById('couponError');
+            console.log(couponCodeInput,totalPriceElement,discountDisplay,finalTotalDisplay)
+            console.log('work it');
+
+
+
+            if (!couponCodeInput || !totalPriceElement || !discountDisplay || !finalTotalDisplay) {
+                console.log('work it1');
+                Swal.fire({
+                    text: 'Something went wrong. Please refresh the page.',
+                    icon: 'error'
+                });
+                return;
+            }
+            console.log('work it2');
+
+            const couponCode = couponCodeInput.value.trim();
+            console.log('work it3');
+            if (!couponCode) {
+                console.log('work it4');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Empty Coupon',
+                    text: 'Please enter a coupon code.',
+                });
+                return;
+            }
+            console.log('work it5');
+
+            let originalPrice = parseFloat(totalPriceElement.value);
+            console.log('work it');
+            if (isNaN(originalPrice)) {
+                console.log('work it6');
+                Swal.fire({
+                    text: 'Invalid price value.',
+                    icon: 'error'
+                });
+                return;
+            }
+            console.log('work it7');
+            try {
+                console.log('work it8');
+                const response = await fetch('/apply-coupon', {
+                    
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ couponCode, totalPrice: originalPrice })
+                });
+                console.log('work it9');
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                console.log('work it10');
+
+                const result = await response.json();
+                console.log('work it11');
+                if (result.success) {
+                    // Update the discount and final total values
+                    let discountAmount = result.discountAmount || 0;
+                    discountAmount=parseFloat(discountAmount)
+                    console.log(discountAmount);
+                    const finalPrice = originalPrice - discountAmount;
+                    Number(finalPrice)
+                    console.log(finalPrice);
+                    console.log(typeof discountAmount);
+                    console.log(typeof finalPrice);
+
+
+                    if (typeof discountAmount === "number" && typeof finalPrice === "number") {
+                        discountDisplay.innerHTML = `$${discountAmount.toFixed(2)}`;
+                        finalTotalDisplay.innerHTML = `$${finalPrice.toFixed(2)}`;
+                        totalPriceElement.value = finalPrice.toFixed(2);
+                    } else {
+                        console.error("Invalid values for discountAmount or finalPrice:", discountAmount, finalPrice);
+                        discountDisplay.innerHTML = "Error applying discount";
+                        finalTotalDisplay.innerHTML = "Error calculating total";
+                    }
+                    console.log(discountDisplay);
+                    console.log(finalTotalDisplay);
+
+
+                    couponMessage.textContent = result.message || 'Coupon applied successfully!';
+                    couponMessage.classList.remove('d-none');
+                    couponError.classList.add('d-none');
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Coupon Applied',
+                        text: `You saved $${discountAmount.toFixed(2)}!`
+                    });
+                } else {
+                    couponMessage.classList.add('d-none');
+                    couponError.textContent = result.message || 'Invalid coupon code.';
+                    couponError.classList.remove('d-none');
+                }
+            } catch (error) {
+                console.error('Error during coupon application:', error);
+                Swal.fire({
+                    text: `Failed to apply coupon: ${error.message}`,
+                    icon: 'error'
+                });
+            }
+        }
+
+        function updateDisplay({ subtotal, discount, final }) {
+            const elements = {
+                subtotal: document.getElementById('subtotalDisplay'),
+                discount: document.getElementById('discountDisplay'),
+                final: document.getElementById('finalTotalDisplay')
+            };
+            if (elements.subtotal) elements.subtotal.textContent = `₹${subtotal.toLocaleString()}`;
+            if (elements.discount) elements.discount.textContent = `₹${discount.toLocaleString()}`;
+            if (elements.final) elements.final.textContent = `₹${final.toLocaleString()}`;
+
+        }
+        function resetCouponState(originalPrice) {
+            const totalPriceElement = document.getElementById('finalPrice');
+            const discountRow = document.getElementById('discount-row');
+            const applyCouponBtn = document.getElementById('applyCouponBtn');
+            const removeCouponBtn = document.getElementById('removeCouponBtn');
+
+            if (discountRow) discountRow.classList.add('d-none');
+            if (applyCouponBtn) applyCouponBtn.classList.remove('d-none');
+            if (removeCouponBtn) removeCouponBtn.classList.add('d-none');
+
+            if (totalPriceElement) {
+                totalPriceElement.value = totalPriceElement.getAttribute('data-original-price') || originalPrice;
+            }
+
+            updateDisplays({
+                subtotal: originalPrice,
+                discount: 0,
+                final: originalPrice
+            });
+        }
+
+
+
     </script>
-    
+
     <%- include("../../views/partials/user/footer") %>

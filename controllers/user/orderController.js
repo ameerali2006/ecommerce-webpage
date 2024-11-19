@@ -2,6 +2,8 @@ const User=require('../../models/userSchema')
 const Order =require('../../models/orderSchema')
 const Product =require('../../models/productSchema')
 const Address = require('../../models/addressSchema')
+const Coupon = require('../../models/couponSchema')
+
 
 const getOrders= async (req,res)=>{
     try {
@@ -69,6 +71,42 @@ const getOrderCancel= async (req,res)=>{
         
     }
 }
+const applyCoupon=async (req,res)=>{
+    const {couponCode,totalPrice}=req.body;
+    try {
+        console.log('workk1');
+        if (!couponCode || !totalPrice) {
+            return res.status(400).json({ success: false, message: "Missing coupon code or price" });
+        }
+        console.log('workk2');
+        const coupon =await Coupon.findOne({name:couponCode,expireOn:{$gt:Date.now()}})
+        console.log('workk3');
+        if(!coupon){
+            return res.json({success:false,meassge:'invalid or expired coupon'})
+        }
+        const discount = parseFloat(coupon.offerPrice);
+        console.log(discount);
+        if (isNaN(discount)) {
+            return res.status(400).json({ success: false, message: "Invalid discount value" });
+        }
+        console.log('workk4');
+        const discountAmount = (totalPrice * discount) / 100;
+        console.log(discountAmount);
+        console.log('workk5');
+        const finalTotal = totalPrice - discountAmount;
+        console.log(finalTotal);
+        console.log('workk6');
+        res.status(200).json({
+            success: true,
+            discountAmount: discountAmount.toFixed(2),
+            finalTotal: finalTotal.toFixed(2),
+            message: "Coupon applied successfully!"
+        });
+    } catch (error) {
+        console.error(error);
+        
+    }
+}
 
 
 
@@ -77,7 +115,8 @@ const getOrderCancel= async (req,res)=>{
 module.exports={
     getOrders,
     getOrderDetails,
-    getOrderCancel
+    getOrderCancel,
+    applyCoupon
 }
 
 

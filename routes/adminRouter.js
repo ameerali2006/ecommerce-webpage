@@ -7,6 +7,7 @@ const customerController=require('../controllers/admin/customerController')
 const brandController=require('../controllers/admin/brandController')
 const productController=require('../controllers/admin/productController')
 const orderController=require('../controllers/admin/orderController')
+const couponController=require('../controllers/admin/couponController')
 
 const multer=require('multer');
 const storage=require('../helpers/multer')
@@ -60,7 +61,14 @@ router.post('/deleteImage',adminAuth,productController.deleteSingleImage);
 
 // order Manegement
 router.get('/allOrders',orderController.getAllorders)
- 
+
+
+
+// coupon manegement 
+router.get('/add-coupon',couponController.getCoupon)
+router.post('/add-coupon',couponController.addCoupon)
+router.get('/delete-coupon/:id',couponController.deleteCoupon)
+
 
 
 
