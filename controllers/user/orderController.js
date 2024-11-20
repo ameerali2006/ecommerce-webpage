@@ -74,28 +74,25 @@ const getOrderCancel= async (req,res)=>{
 const applyCoupon=async (req,res)=>{
     const {couponCode,totalPrice}=req.body;
     try {
-        console.log('workk1');
+        const userId=req.session.user
         if (!couponCode || !totalPrice) {
             return res.status(400).json({ success: false, message: "Missing coupon code or price" });
         }
-        console.log('workk2');
+        
         const coupon =await Coupon.findOne({name:couponCode,expireOn:{$gt:Date.now()}})
-        console.log('workk3');
         if(!coupon){
             return res.json({success:false,meassge:'invalid or expired coupon'})
         }
+        if(coupon.userId.includes(userId)){
+            return res.json({ success: false, message: "coupon is already used by you" });
+
+        }
         const discount = parseFloat(coupon.offerPrice);
-        console.log(discount);
         if (isNaN(discount)) {
             return res.status(400).json({ success: false, message: "Invalid discount value" });
         }
-        console.log('workk4');
         const discountAmount = (totalPrice * discount) / 100;
-        console.log(discountAmount);
-        console.log('workk5');
         const finalTotal = totalPrice - discountAmount;
-        console.log(finalTotal);
-        console.log('workk6');
         res.status(200).json({
             success: true,
             discountAmount: discountAmount.toFixed(2),
@@ -107,6 +104,25 @@ const applyCoupon=async (req,res)=>{
         
     }
 }
+const removeCoupon = async (req, res) => {
+    try {
+  
+      const { totalPrice } = req.body;
+  
+      const discountAmount = 0;
+      const finalTotal = totalPrice;
+  
+      res.json({
+        success: true,
+        discountAmount,
+        finalTotal,
+      });
+  
+    } catch (error) {
+      console.error("Error removing coupon", error);
+      res.status(500);
+    }
+  }
 
 
 
@@ -116,7 +132,8 @@ module.exports={
     getOrders,
     getOrderDetails,
     getOrderCancel,
-    applyCoupon
+    applyCoupon,
+    removeCoupon
 }
 
 

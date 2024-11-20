@@ -5,6 +5,7 @@ const Category =require('../../models/categorySchema')
 const Address =require('../../models/addressSchema')
 const Order =require('../../models/orderSchema')
 const Razorpay = require('razorpay');
+const Coupon = require('../../models/couponSchema')
 const env = require('dotenv').config()
 
 const razorpay = new Razorpay({
@@ -50,8 +51,8 @@ const getCheckOut= async (req,res)=>{
 
 const CheckOut = async (req, res) => {
     try {
-        const { payment_method, addressId, finalPrice } = req.body;
-        console.log('Checkout process started');
+        const { payment_method,cartproducts, addressId,totalPrice, finalPrice,CouponCode } = req.body;
+        console.log(req.body);
 
         // Check if user is logged in
         const userId = req.session.user;
@@ -66,6 +67,11 @@ const CheckOut = async (req, res) => {
             console.log('Cart not found or empty');
             return res.redirect('/');
         }
+        let code=''
+        if(CouponCode){
+            code=CouponCode
+        }
+        const couponApplied=Boolean(CouponCode&& CouponCode.trim()!=='')
 
         // Prepare ordered items
         const orderedItems = cart.items.map(item => ({
@@ -84,12 +90,21 @@ const CheckOut = async (req, res) => {
         const createOrder = new Order({
             orderedItems,
             user:userId,
-            totalPrice: finalPrice,
+            totalPrice: totalPrice,
             finalAmount: finalPrice,
             address: addressId,
             paymentMethod: payment_method,
-            status:'pending'
+            status:'pending',
+            couponApplied,
+            couponCode:code,
+            discount:totalPrice-finalPrice+40,
+            deliveryCharge:40
+
+
         });
+        if(CouponCode){
+            await Coupon.findOneAndUpdate({name:CouponCode},{$push:{userId:userId}});
+        }
 
         
         console.log('Order created:', createOrder);

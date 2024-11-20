@@ -73,7 +73,7 @@ router.get('/order-details',orderController.getOrderDetails)
 router.get('/cancel-order',orderController.getOrderCancel)
 
 router.post('/apply-coupon',orderController.applyCoupon)
-
+router.post('/remove-coupon',orderController.removeCoupon);
 
 
 module.exports=router 

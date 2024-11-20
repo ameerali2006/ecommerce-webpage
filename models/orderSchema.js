@@ -66,10 +66,20 @@ const orderSchema=new Schema({
         enum:['pending','processing','Shipped','Delivered','Cancelled','Return Requeest','Returned']
 
     },
+    deliveryCharge:{
+        type:Number,
+        require:true
+
+    },
     createdOn:{
         type:Date,
         default:Date.now,
         required:true
+    },
+    couponCode:{
+        type:String,
+        require:true
+
     },
     couponApplied:{
         type:Boolean,
