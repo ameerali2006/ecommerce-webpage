@@ -209,12 +209,15 @@
                                     <td class="text-right" data-title="Cart">
                                         <span> <%= product.totalPrice%></span>
                                     </td>
-                                    <td class="action" data-title="Remove"><a href="/showCart/remove?id=<%=product.productId._id%>" onclick="return confirmRemove();" class="text-muted"><i class="fi-rs-trash"></i></a></td>
+                                    <td class="action" data-title="Remove"><a href="#" onclick="return confirmRemove('<%= product.productId._id %>');" class="text-muted">
+                                        <i class="fi-rs-trash"></i>
+                                    </a>
+                                </td>
                                 </tr>
                                  <%}%> 
                                 <tr>
                                     <td colspan="6" class="text-end">
-                                        <a href="/showCart/clearCart" onclick="return confirm('are you sure , you wand to remove all products from cart')" class="text-muted"> <i class="fi-rs-cross-small"></i> Clear Cart</a>
+                                        <a href="#" onclick="return confirmClear()" class="text-muted"> <i class="fi-rs-cross-small"></i> Clear Cart</a>
                                     </td>
                                 </tr>
                             </tbody>
@@ -313,8 +316,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Modified remove confirmation function to use SweetAlert
-function confirmRemove() {
-    return Swal.fire({
+function confirmRemove(productId) {
+    Swal.fire({
         title: 'Are you sure?',
         text: "You want to remove this item from cart?",
         icon: 'question',
@@ -324,8 +327,29 @@ function confirmRemove() {
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
     }).then((result) => {
-        return result.isConfirmed;
+        if (result.isConfirmed) {
+            // Redirect to the remove route after confirmation
+            window.location.href = `/showCart/remove?id=${productId}`;
+        }
     });
+    // Prevent the default link action
+    return false;
+}
+function confirmClear(){
+    Swal.fire({
+        title:'Are you sure?',
+        text:'you want to clear your cart',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, Clear  it!',
+        cancelButtonText: 'No, keep it',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+    }).then((result )=>{
+        if(result.isConfirmed){
+            window.location.href='/showCart/clearCart';
+        }
+    })
 }
 
 

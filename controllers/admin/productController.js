@@ -137,60 +137,75 @@ const getAllProducts=async (req,res)=>{
         
     }
 }
-const addProductOffer= async (req,res)=>{
+const addProductOffer = async (req, res) => {
     try {
-        const {productId,percentage}=req.body;
+        const { productId, percentage } = req.body;
         console.log('start');
-        const findProduct=await Product.findOne({_id:productId});
+
+        // Find the product and its category
+        const findProduct = await Product.findOne({ _id: productId });
         console.log('1');
-        const findCategory=await Category.findOne({_id:findProduct.category});
-        if(findCategory.categoryOffer>percentage){
-            console.log('  2 ');
-            return res.json({status:false,message:"this products category already has a category offer"})
+        const findCategory = await Category.findOne({ _id: findProduct.category });
+
+        // Check if the category already has an offer
+        if (findCategory.categoryOffer > percentage) {
+            console.log('2');
+            return res.json({ status: false, message: "This product's category already has a category offer." });
         }
-        findProduct.salePrice=findProduct.salePrice-Math.floor(findProduct.salePrice*(percentage/100))
-        console.log(' 3  ');
 
-        findProduct.productOffer=parseInt(percentage);
-        console.log(' 4  ');
+        // Calculate the discount and update sale price (subtract from the original price)
+        const discount = Math.floor(findProduct.salePrice * (percentage / 100));
+        findProduct.salePrice = findProduct.salePrice - discount;
+        console.log('3');
+
+        // Store the product offer percentage
+        findProduct.productOffer = parseInt(percentage);
+        console.log('4');
 
         await findProduct.save();
-        console.log('  4 ');
+        console.log('5');
 
-        findCategory.categoryOffer=0;
-        console.log('5   ');
-
+        // Reset the category offer to 0
+        findCategory.categoryOffer = 0;
         await findCategory.save();
-        console.log(' 6  ');
+        console.log('6');
 
-        res.json({status:true});
+        res.json({ status: true });
 
     } catch (error) {
-
-        res.redirect('/admin/pageerror')
-        
-        
+        console.error(error);
+        res.redirect('/admin/pageerror');
     }
-}
-const removeProductOffer= async (req,res)=>{
+};
+
+const removeProductOffer = async (req, res) => {
     try {
-        const {productId}=req.body;
-        const findProduct=await Product.findOne({_id:productId});
-        const percentage=findProduct.productOffer;
-        findProduct.salePrice=findProduct.salePrice+Math.floor(findProduct.salePrice*(percentage/100))
-        findProduct.productOffer=0;
+        const { productId } = req.body;
+        
+        // Find the product to remove the offer
+        const findProduct = await Product.findOne({ _id: productId });
+
+        // Get the discount percentage and calculate the restored price
+        const percentage = findProduct.productOffer;
+        
+
+        // Restore the original sale price
+        findProduct.salePrice = ((findProduct.salePrice *100)/(100-percentage))
+
+        // Remove the product offer
+        findProduct.productOffer = 0;
+
+        // Save the updated product
         await findProduct.save();
-        res.json({status:true});
 
-
-
-
+        res.json({ status: true });
 
     } catch (error) {
-        res.redirect('/admin/pageerror')
-        
+        console.error(error);
+        res.redirect('/admin/pageerror');
     }
-}
+};
+
 
 const blockProduct= async (req,res)=>{
     try {

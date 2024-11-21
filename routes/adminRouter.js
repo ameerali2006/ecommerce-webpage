@@ -60,7 +60,8 @@ router.post('/editProduct/:id',adminAuth,uploads.array('images',4),productContro
 router.post('/deleteImage',adminAuth,productController.deleteSingleImage);
 
 // order Manegement
-router.get('/allOrders',orderController.getAllorders)
+router.get('/allOrders',orderController.getAllorders);
+router.post('/update-order-status', orderController.updateOrderStatus);
 
 
 

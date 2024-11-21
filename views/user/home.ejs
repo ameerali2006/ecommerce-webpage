@@ -343,7 +343,7 @@
                                         </div>
                                         <div class="product-action-1">
                                             <!-- <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a> -->
-                                            <a aria-label="Add To Wishlist" class="action-btn hover-up" href="/addtoWishlist?id=<%products[i]._id%>"><i class="fi-rs-heart"></i></a>
+                                            <a aria-label="Add To Wishlist" class="action-btn hover-up" onclick="wishlist(`<%=products[i]._id%>`)"><i class="fi-rs-heart"></i></a>
                                             <!-- <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> -->
                                         </div>
                                         
@@ -1635,8 +1635,47 @@
         </section>-->
     </main>
     
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        function wishlist(productId){
+            if (!productId) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Action',
+                    text: 'Product ID is missing!',
+                });
+                return;
+            }
+            console.log('work 1');
+            fetch(`/addtoWishlist?id=${productId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('work 1');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: data.message,
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Oops!',
+                            text: data.message,
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong. Please try again later.',
+                    });
+                });
+        }
         // Method 2: Using jQuery
         $(document).ready(function() {
             $('.form-select').on('change', async function(e) {

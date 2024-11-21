@@ -295,7 +295,7 @@
 
                                     <div class="payment-option" id="razorpay-btn" onclick="selectPayment('online')">
                                         <input type="radio" name="payment_method" id="online" value="Online">
-                                        <label for="online">
+                                        <label  for="online">
                                             Online Payment
                                             <svg class="payment-icon" width="24" height="24" viewBox="0 0 24 24"
                                                 fill="none" stroke="currentColor" stroke-width="2"
@@ -310,7 +310,7 @@
 
                                 <!-- Hidden Fields -->
                                 <input type="hidden" name="addressId" id="addressId">
-                                <input type="hidden" name="cartproducts" value='<%= JSON.stringify(cart ? cart.items : []) %>'>
+                                
                                 <input type="hidden" name="totalPrice" id="totalprice" value="<%=cartTotal %>">
                                 <input type="hidden" name="finalPrice" id="finalprice">
                                 <input type="hidden" id="hiddenCouponCode" name="CouponCode">
@@ -338,6 +338,37 @@
             document.getElementById("hiddenCouponCode").value = couponCode;
 
             const orderForm = document.getElementById("orderForm");
+            
+            const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+            if (!selectedAddress) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Select Address',
+                    text: 'Please select an address before placing your order.',
+                });
+                return;
+            }
+
+
+            const selectedPayment = document.querySelector('input[name="payment_method"]:checked').value;
+            
+            
+            if (!selectedPayment) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Select Payment Method',
+                    text: 'Please select a payment method before placing your order.',
+                });
+                return;
+            }
+            if(selectedPayment=='Online'){
+                razorpayPayment();
+                return;
+
+                
+            }
+
+
             orderForm.submit();
         }
 
@@ -358,7 +389,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // address sestup
-        document.getElementById('orderForm').addEventListener('submit', function (e) {
+        document.getElementById('orderForm').addEventListener('submit', async function (e) {
 
             e.preventDefault();
 
@@ -374,7 +405,9 @@
             }
 
 
-            const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
+            const selectedPayment = document.querySelector('input[name="payment_method"]:checked').value;
+            
+            
             if (!selectedPayment) {
                 Swal.fire({
                     icon: 'warning',
@@ -383,11 +416,73 @@
                 });
                 return;
             }
+            if(selectedPayment=='online'){
+                await razorpayPayment();
+                return;
+
+                
+            }
 
 
             this.submit();
+
         });
         // end of address setup
+
+        // razorpay setup
+        function razorpayPayment(){
+            const finalAmount=document.getElementById('finalTotalDisplay');
+            const finalPrice = finalAmount ? finalAmount.textContent.replace('$', '').trim() : '0';
+
+            fetch('/createPayment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ amount: finalPrice })
+            })
+            .then(response =>response.json())
+            .then(data => {
+                if (data.success) {
+                    const options = {
+                        key: "rzp_test_2aUGLgE6VrGTVa",
+                        amount: finalPrice * 100,
+                        currency: 'INR',
+                        name: 'DIGITALAGE',
+                        description: 'Order Payment',
+                        order_id: data.orderId,
+                        method: {
+                            card: true,
+                            netbanking: true,
+                            wallet: true,
+                            upi: true
+                        },
+                        handler: function (response) {
+                            document.getElementById('orderForm').submit();
+
+                        },
+                        prefill: {
+                            name: "Your Name",
+                            email: "your@example.com",
+                            contact: "1234567890"
+                        },
+                        theme: {
+                            color: "#39b4ac"
+                        }
+
+
+                    };
+                    const razorpay = new Razorpay(options);
+                    razorpay.open();
+                }else{
+                    Swal.fire('Error', 'Order creation failed', 'error');
+                }
+            })
+            .catch(error => console.error('Error initiating Razorpay payment:', error)); 
+        
+        
+        
+        }
 
 
 

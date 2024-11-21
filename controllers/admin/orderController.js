@@ -18,7 +18,24 @@ const getAllorders=async (req,res)=>{
         
     }
 }
+const updateOrderStatus = async (req, res) => {
+    const { orderId, newStatus } = req.body;
+    try {
+        const order = await Order.findOne({ orderId });
 
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        order.status = newStatus;
+        await order.save();
+
+        res.json({ success: true, message: 'Order status updated' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Failed to update status' });
+    }
+};
 
 
 
@@ -27,6 +44,7 @@ const getAllorders=async (req,res)=>{
 
 module.exports={
     getAllorders,
+    updateOrderStatus
 
 }
 

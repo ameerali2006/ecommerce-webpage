@@ -8,6 +8,7 @@ const cartController = require('../controllers/user/cartController');
 const User=require('../models/userSchema')
 const checkOutController = require('../controllers/user/checkOutController');
 const orderController = require('../controllers/user/orderController');
+const wishlistController = require('../controllers/user/wishlistController');
 
 router.use(async(req, res, next) => {
     const userData = await User.findById(req.session.user);
@@ -67,6 +68,7 @@ router.post('/showCart/updateCartQuantity',cartController.updateQuantity)
 
 router.get('/getCheckOut',checkOutController.getCheckOut)
 router.post('/postCheckOut',checkOutController.CheckOut)
+router.post('/createPayment',checkOutController.createPayment)
 
 router.get('/orders',orderController.getOrders)
 router.get('/order-details',orderController.getOrderDetails)
@@ -74,6 +76,8 @@ router.get('/cancel-order',orderController.getOrderCancel)
 
 router.post('/apply-coupon',orderController.applyCoupon)
 router.post('/remove-coupon',orderController.removeCoupon);
-
+router.get('/addtoWishlist',wishlistController.addToWishlist)
+router.get('/wishlist',wishlistController.getWishlist)
+router.delete('/removeFromWishlist',wishlistController.removeWishlist)
 
 module.exports=router 

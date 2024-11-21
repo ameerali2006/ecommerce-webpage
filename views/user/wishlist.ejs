@@ -1,0 +1,100 @@
+<%- include("../../views/partials/user/header") %>
+<main class="main">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="/" rel="nofollow">Home</a>
+                <span></span> Wishlist
+            </div>
+        </div>
+    </div>
+    <section class="mt-50 mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="table shopping-summery text-center">
+                            <thead>
+                                <tr class="main-heading">
+                                    <th scope="col" colspan="2">Product</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Stock Status</th>
+                                    <th scope="col">Action</th>
+                                    <th scope="col">Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (wishlistItems.length > 0) { %>
+                                    <% wishlistItems.forEach(item => { %>
+                                        
+                                        <tr>
+                                            <td class="image product-thumbnail"><img src="/uploads/re-image/<%= item.image %>" alt="<%= item.name %>"></td>
+                                            <td class="product-des product-name">
+                                                <h5 class="product-name"><a href="/productDetails?id=<%= item.id %>"><%= item.name %></a></h5>
+                                                <p class="font-xs"><%= item.description.substring(0,150) %>...</p>
+                                            </td>
+                                            <td class="price" data-title="Price"><span>$<%= item.price %></span></td>
+                                            <td class="text-center" data-title="Stock">
+                                                <span class="<%= item.stockStatus ? 'color3' : 'text-danger' %> font-weight-bold"><%= item.stock %></span>
+                                            </td>
+                                            <td class="text-right" data-title="Cart">
+                                                <% if (item.stockStatus) { %>
+                                                    <form action="/addToCart?id=<%= item.id %>" method="POST"
+                                                        style="display: inline; ">
+                                                        <input type="hidden" name="quantity" id="cart-quantity" value="1">
+                                                        <button type="submit" class="btn btn-sm"><i class="fi-rs-shopping-bag mr-5"></i>Add to cart</button>
+                                                    </form>
+                                                    
+                                                <% } else { %>
+                                                    <button class="btn btn-sm btn-secondary" disabled><i class="fi-rs-headset mr-5"></i>Out of Stock</button>
+                                                <% } %>
+                                            </td>
+                                            <td class="action" data-title="Remove">
+                                                <a href="#" onclick="removeFromWishlist('<%= item.id %>')"><i class="fi-rs-trash"></i></a>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="6">Your wishlist is empty.</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<%- include("../../views/partials/user/footer") %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function addToCart(productId) {
+        fetch(`/addToCart?id=${productId}`,{method:'post'})
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('Added!', data.message, 'success');
+                } else {
+                    Swal.fire('Oops!', data.message, 'error');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function removeFromWishlist(productId) {
+        fetch(`/removeFromWishlist?id=${productId}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('Removed!', data.message, 'success').then(() => location.reload());
+                } else {
+                    Swal.fire('Oops!', data.message, 'error');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+

@@ -67,25 +67,17 @@
                                         <td>₹<%=orders[i].finalAmount.toLocaleString()%></td>
                                         <td><%=orders[i].paymentMethod%></td>
                                         <td>
-                                            <select
-                                                class="badge rounded-pill <%= `status-${orders[i].status.toLowerCase().replace(/ /g, '-')}` %>"
-                                                onchange="updateOrderStatus('<%= orders[i]._id %>', this.value)"
-                                            >
-                                                <% 
-                                                    const statuses = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Return Request", "Returned"];
-                                                    const currentIndex = statuses.indexOf(orders[i].status); // Find index of current status
-                                                %>
-                                                
-                                                <% statuses.forEach((statusOption, index) => { %>
-                                                    <option 
-                                                        value="<%= statusOption %>" 
-                                                        <%= orders[i].status === statusOption ? 'selected' : '' %>
-                                                        <%= index < currentIndex ? 'disabled' : '' %> <!-- Disable earlier statuses -->
-                                                    >
-                                                        <%= statusOption %>
-                                                    </option>
-                                                <% }) %>
-                                            </select>
+                                            <select data-order-id="<%= orders[i].orderId %>" onchange="updateOrderStatus(this.dataset.orderId, this.value)" 
+                                                class="badge rounded-pill status-<%= orders[i].status.toLowerCase().replace(/ /g, '-') %>">
+                                            <option value="Pending" <%= orders[i].status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                                            <option value="Processing" <%= orders[i].status === 'Processing' ? 'selected' : '' %>>Processing</option>
+                                            <option value="Shipped" <%= orders[i].status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                            <option value="Delivered" <%= orders[i].status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                            <option value="Cancelled" <%= orders[i].status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                            <option value="Return Request" <%= orders[i].status === 'Return Request' ? 'selected' : '' %>>Return Request</option>
+                                            <option value="Returned" <%= orders[i].status === 'Returned' ? 'selected' : '' %>>Returned</option>
+                                        </select>
+                                          
                                         </td>
                                     </tr>
                                 <%}%>
@@ -159,8 +151,20 @@
 <%- include("../../views/partials/admin/footer") %>
 
 <script>
+    
+    // Reusable function for SweetAlert notifications
+    function showAlert(icon, title, text, confirmButtonColor = '#3085d6', confirmButtonText = 'OK') {
+        Swal.fire({
+            icon,
+            title,
+            text,
+            confirmButtonColor,
+            confirmButtonText
+        });
+    }
+
     function updateOrderStatus(orderId, newStatus) {
-        fetch(/admin/update-order-status, {
+        fetch('/admin/update-order-status', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -170,38 +174,29 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Order Status Updated',
-                    text: 'The order status has been updated successfully!',
-                    confirmButtonColor: '#3085d6',
-                    confirmButtonText: 'OK'
-                });
-
-                const selectElement = document.querySelector(`select[onchange="updateOrderStatus('${orderId}', this.value)"]`);
-                selectElement.className = ''; // Remove previous class
-                selectElement.classList.add('badge', 'rounded-pill',` status-${newStatus.toLowerCase().replace(/ /g, '-')}`);
+                showAlert('success', 'Order Status Updated', 'The order status has been updated successfully!');
+                
+                // Update badge styling
+                const selectElement = document.querySelector(`select[data-order-id="${orderId}"]`);
+                if (selectElement) {
+                    selectElement.className = ''; // Reset existing classes
+                    selectElement.classList.add('badge', 'rounded-pill', `status-${newStatus.toLowerCase().replace(/ /g, '-')}`);
+                }
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Update Failed',
-                    text: 'Failed to update order status. Please try again.',
-                    confirmButtonColor: '#d33',
-                    confirmButtonText: 'Close'
-                });
+                showAlert('error', 'Update Failed', 'Failed to update order status. Please try again.', '#d33', 'Close');
             }
         })
         .catch(error => {
             console.error('Error updating order status:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'An Error Occurred',
-                text: 'There was a problem updating the order status. Please try again.',
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'Close'
-            });
+            showAlert('error', 'An Error Occurred', 'There was a problem updating the order status. Please try again.', '#d33', 'Close');
         });
     }
+
+    function filterByStatus(status) {
+        window.location.href = `/admin/orders?status=${status}`;
+    }
+
+
 
     function filterByStatus(status) {
         window.location.href = `/admin/orders?status=${status}`;

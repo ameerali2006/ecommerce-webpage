@@ -85,6 +85,10 @@ const CheckOut = async (req, res) => {
             console.log('Missing required fields');
             return res.status(400).send('Incomplete checkout information');
         }
+        let paymentStatus;
+        if(payment_method=='Online'){
+            paymentStatus='Completed'
+        }
 
         // Create the order
         const createOrder = new Order({
@@ -98,7 +102,9 @@ const CheckOut = async (req, res) => {
             couponApplied,
             couponCode:code,
             discount:totalPrice-finalPrice+40,
-            deliveryCharge:40
+            deliveryCharge:40,
+            paymentStatus
+
 
 
         });
@@ -134,10 +140,29 @@ const CheckOut = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
+const createPayment = async (req, res) => {
+    const { amount } = req.body; 
+    const amt = Number(amount)
+    const options = {
+        amount: amt * 100,   
+        currency: 'INR',
+        receipt: 'receipt#1',   
+    };
+    console.log(options)
+
+    try {
+        const order = await razorpay.orders.create(options);
+        res.json({ success: true, orderId: order.id });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Failed to create order' });
+    }
+}
 
 
 
 module.exports={
     getCheckOut,
-    CheckOut
+    CheckOut,
+    createPayment
 }

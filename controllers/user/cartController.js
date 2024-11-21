@@ -8,10 +8,11 @@ const addToCart=async (req,res)=>{
         const productId= req.query.id;
         const qty=parseInt(req.body.quantity,10) 
         const productData=await Product.findOne({_id:productId})
+        console.log(qty);
         
         if(!productData){
             console.log('not founded');
-            return res.status(404).redirect('/admin/pageerror')
+            return res.status(404).redirect('/pageNotFound')
         }
 
         const recProducts=await Product.find({category:productData.category,_id:{$ne:productData.id}}).limit(4)
@@ -32,7 +33,7 @@ const addToCart=async (req,res)=>{
         if(existCart){
             const existProductIndex=existCart.items.findIndex(item=>item.productId.toString()===productId)
             if(existProductIndex>=0){
-                existCart.items[existProductIndex].quantity+=qty
+                existCart.items[existProductIndex].quantity
                 existCart.items[existProductIndex].totalPrice+=totalPrice
                 console.log(existCart.items[existProductIndex].quantity+=qty,existCart.items[existProductIndex].totalPrice+=totalPrice);
             }else{
