@@ -7,6 +7,7 @@ const Order =require('../../models/orderSchema')
 const Razorpay = require('razorpay');
 const Coupon = require('../../models/couponSchema')
 const env = require('dotenv').config()
+const crypto = require('crypto'); 
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -19,28 +20,53 @@ const razorpay = new Razorpay({
 const getCheckOut= async (req,res)=>{
     try {
         const userId=req.session.user;
+        const productId= req.query.id;
+        
+        
         if(!userId){
-            console.log('user not found');
-            return res.redirect('/login')
-        }
-        const cart=await Cart.findOne({userId}).populate('items.productId')
-        if(!cart || cart.items.length===0){
-            console.log('cart not found');
-            return res.redirect('/');
-
-        }
-        const user=await User.findById(userId);
-        if(!user){
             console.log('user not found');
             return res.redirect('/login')
         }
 
         const address= await Address.findOne({userId})
+        let cartItems=[];
+        let cartTotal=0;
 
-        const cartTotal=cart.items.reduce((total,item)=>total+item.totalPrice,0)
+
+        if(productId){
+            const product =await Product.findById(productId);
+            if(!product){
+                console.log('Product not founded');
+                return res.redirect('/');
+
+            }
+            cartItems = [
+                {
+                    productId: product,
+                    quantity: 1,
+                    totalPrice: product.price,
+                },
+            ];
+            cartTotal = product.salePrice;
+        }else{
+            const cart = await Cart.findOne({ userId }).populate('items.productId');
+            if(!cart||cart.items.length===0){
+                console.log('Cart not found or empty');
+                res.redirect('/');
+            }
+            cartItems = cart.items;
+            cartTotal = cart.items.reduce((total, item) => total + item.totalPrice, 0);
+            
+        }
 
 
-        res.render('checkout',{addresses:address.address,cart:cart.items,fullCart:cart,cartTotal})
+        
+        
+
+        console.log(cartTotal);
+
+
+        res.render('checkout',{addresses:address.address,cart:cartItems,cartTotal,key_id:process.env.RAZORPAY_KEY_ID})
     } catch (error) {
         console.error(error);
         res.render('page-404')
@@ -63,10 +89,10 @@ const CheckOut = async (req, res) => {
         
         // Retrieve the user's cart
         const cart = await Cart.findOne({ userId }).populate('items.productId');
-        if (!cart || cart.items.length === 0) {
-            console.log('Cart not found or empty');
-            return res.redirect('/');
-        }
+        // if (!cart || cart.items.length === 0) {
+        //     console.log('Cart not found or empty');
+        //     return res.redirect('/');
+        // }
         let code=''
         if(CouponCode){
             code=CouponCode
@@ -74,11 +100,21 @@ const CheckOut = async (req, res) => {
         const couponApplied=Boolean(CouponCode&& CouponCode.trim()!=='')
 
         // Prepare ordered items
-        const orderedItems = cart.items.map(item => ({
-            product: item.productId,
-            quantity: item.quantity,
-            price: item.totalPrice / item.quantity
-        }));
+        const orderedItems = [];
+        for (const item of cart.items) {
+            const product = await Product.findById(item.productId);
+
+            if (!product || product.isBlock) {
+                console.error(`Product is blocked or not found: ${item.productId}`);
+                return res.status(400).send(`Product not available for purchase: ${item.productId}`);
+            }
+
+            orderedItems.push({
+                product: item.productId,
+                quantity: item.quantity,   
+                price: item.totalPrice / item.quantity,
+            });
+        }
         console.log('workk')
         // Check if required fields are present
         if (!finalPrice || !addressId || !payment_method) {
@@ -104,7 +140,7 @@ const CheckOut = async (req, res) => {
             discount:totalPrice-finalPrice+40,
             deliveryCharge:40,
             paymentStatus
-
+ 
 
 
         });
@@ -141,28 +177,63 @@ const CheckOut = async (req, res) => {
     }
 };
 const createPayment = async (req, res) => {
-    const { amount } = req.body; 
-    const amt = Number(amount)
-    const options = {
-        amount: amt * 100,   
-        currency: 'INR',
-        receipt: 'receipt#1',   
-    };
-    console.log(options)
-
     try {
+        const { amount } = req.body;
+        const paymentAmount = Number(amount) * 100; 
+
+        
+        const options = {
+            amount: paymentAmount,
+            currency: 'INR',
+            receipt: `receipt_${Date.now()}`,
+        };
+
+        
         const order = await razorpay.orders.create(options);
-        res.json({ success: true, orderId: order.id });
+
+        console.log('Razorpay order created:', order);
+        res.status(202).json({ success: true, orderId: order.id });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: 'Failed to create order' });
+        console.error('Failed to create Razorpay order:', error);
+        res.status(500).json({ success: false, message: 'Failed to initiate payment' });
+    }
+};
+
+const verifyPayment = async (req,res)=>{
+    try {
+        const {razorpay_payment_id, razorpay_order_id, razorpay_signature} = req.body;
+        console.log(req.body);
+        if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
+            console.error('Missing required fields for verification');
+            return res.status(400).json({ success: false, message: 'Incomplete payment data' });
+        }
+        const secret= process.env.RAZORPAY_KEY_SECRET;
+        const generateSignature=crypto
+        .createHmac('sha256',secret)
+        .update(razorpay_order_id + "|" + razorpay_payment_id)
+        .digest('hex');
+        console.log(generateSignature+'###with##'+razorpay_signature);
+
+        if (generateSignature===razorpay_signature){
+            console.log('Payment verified successfully');
+            
+            res.status(200).json({success:true})
+        }else{
+            
+            console.error('Payment verification failed');
+            res.status(400).json({ success: false, message: 'Invalid payment signature' });
+        }
+    } catch (error) {
+        console.error('Payment verification error:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 }
-
+ 
 
 
 module.exports={
     getCheckOut,
     CheckOut,
-    createPayment
+    createPayment,
+    verifyPayment
 }

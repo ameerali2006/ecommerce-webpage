@@ -30,7 +30,7 @@ const customerInfo= async (req,res)=>{
             ]
         }).countDocuments();
 
-        res.render('customers',{data:userData,totalPages:count,currentPage:page})
+        res.render('customers',{data:userData,totalPages:Math.ceil(count/limit),currentPage:page})
 
 
 

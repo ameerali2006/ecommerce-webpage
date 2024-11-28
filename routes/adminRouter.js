@@ -8,6 +8,7 @@ const brandController=require('../controllers/admin/brandController')
 const productController=require('../controllers/admin/productController')
 const orderController=require('../controllers/admin/orderController')
 const couponController=require('../controllers/admin/couponController')
+const stockController=require('../controllers/admin/stockController')
 
 const multer=require('multer');
 const storage=require('../helpers/multer')
@@ -69,6 +70,12 @@ router.post('/update-order-status', orderController.updateOrderStatus);
 router.get('/add-coupon',couponController.getCoupon)
 router.post('/add-coupon',couponController.addCoupon)
 router.get('/delete-coupon/:id',couponController.deleteCoupon)
+
+
+router.get('/stockManagement',stockController.getStocks)
+router.post('/update-stock',stockController.updateStock)
+
+router.get('/saleReport',orderController.getSaleReport)
 
 
 

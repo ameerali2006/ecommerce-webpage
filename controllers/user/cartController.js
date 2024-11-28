@@ -3,6 +3,7 @@ const Cart=require('../../models/cartSchema')
 const Product =require('../../models/productSchema')
 const Category =require('../../models/categorySchema')
 
+
 const addToCart=async (req,res)=>{
     try {
         const productId= req.query.id;
@@ -150,57 +151,61 @@ const clearCart= async (req,res)=>{
         
     }
 }
-const updateQuantity=async (req,res)=>{
+
+const checkStock=async (req, res) => {
+    const { id } = req.query;
+
     try {
-        console.log('start');
-        const {id,quantity}=req.query;
-        console.log(id,quantity);
-        const userId=req.session.user;
-        console.log(userId);
-        
-        if(!userId){
-            console.log('no user');
+        const product=await Product.findById(id)
+        const availableStock = product.quantity; 
 
-            return res.status(401).json({error:'User not loggind'}).redirect('/login')
-        }
-        const cart=await Cart.findOne({userId:userId})
-        if(!cart){
-            console.log('no cart');
+        res.json({ stock: availableStock });
+    } catch (error) {
+        console.error('Error checking stock:', error);
+        res.status(500).json({ error: 'Failed to check stock' });
+    }
+};
+const updateQuantity = async (req, res) => {
+    const { productId, change } = req.body;
+    try {
 
-            return res.status(404).json({error:'cart not found '}).redirect('/');
-
-        }
-        const index=cart.items.findIndex(item=>item.productId.toString()===id);
-        console.log(index);
-
-        if(index==-1){
-            return res.status(404).json({error:'product is not find'}).redirect('/')
-        }
-        const newQuantity = parseInt(quantity, 10);
-        if (isNaN(newQuantity) || newQuantity <= 0) {
-            console.log('Invalid quantity:', quantity);
-            return res.status(400).json({ error: 'Invalid quantity value' });
+        const userId = req.session.user;
+        if (!userId) {
+            return res.json({ success: false, message: "User not logged in" });
         }
 
-        const salePrice = cart.items[index].price;
-        if (isNaN(salePrice) || salePrice <= 0) {
-            console.log('Invalid salePrice:', salePrice);
-            return res.status(400).json({ error: 'Invalid price value for the product' });
+        const cart = await Cart.findOne({ userId: userId });
+        if (!cart) {
+            return res.json({ success: false, message: "Cart not found" });
         }
-        cart.items[index].quantity=newQuantity;
-        cart.items[index].totalPrice=salePrice*newQuantity
-        await cart.save();
-        console.log('saved');
 
-        res.json({updateTotalPrice:cart.items[index].totalPrice})
+        const item = cart.items.find((item) => item.productId.toString() === productId);
+        if (item) {
+            item.quantity += change;
+            item.totalPrice = item.quantity * item.price;
+
+            if (item.quantity <= 0) {
+                cart.items = cart.items.filter((item) => item.productId.toString() !== productId);
+            }
+
+            cart.totalPrice = cart.items.reduce((total, item) => total + item.totalPrice, 0);
+            await cart.save();
+
+            res.json({
+                success: true,
+                newQuantity: item.quantity,
+                newSubtotal: item.totalPrice,
+                totalPrice: cart.totalPrice,
+            });
+        } else {
+            res.json({ success: false, message: "Item not found in cart" });
+        }
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({error:'failed to update'})
-        
+        res.json({ success: false, message: "Failed to update quantity" });
     }
-}
-
+};
 
 
 module.exports={
@@ -208,7 +213,10 @@ module.exports={
     getShowCart,
     removeFromCart,
     clearCart,
-    updateQuantity
+    updateQuantity,
+    checkStock,
+
+
 
 
 

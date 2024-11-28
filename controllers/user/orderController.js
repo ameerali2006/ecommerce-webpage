@@ -3,6 +3,7 @@ const Order =require('../../models/orderSchema')
 const Product =require('../../models/productSchema')
 const Address = require('../../models/addressSchema')
 const Coupon = require('../../models/couponSchema')
+const Wallet=require('../../models/walletSchema')
 
 
 const getOrders= async (req,res)=>{
@@ -60,8 +61,41 @@ const getOrderCancel= async (req,res)=>{
             console.log('user not found');
             return res.redirect('/login')
         }
+
         const id=req.query.id;
         const reason=req.query.reason;
+        const order = await Order.findById(id);
+        if (!order) {
+            console.log('Order not found');
+            return res.redirect('/orders');
+        }
+        if (order.paymentMethod === 'Online' && order.paymentStatus === 'Completed') {
+            const refundAmount = order.finalAmount;
+            console.log(refundAmount);
+
+            // Update the user's wallet
+            const wallet = await Wallet.findOneAndUpdate(
+                { userId },
+                {
+                    $inc: { balance: refundAmount }, // Increment wallet balance
+                    $push: {
+                        transactions: {
+                            type: 'Refund',
+                            amount: refundAmount,
+                            orderId: id,
+                            description: `Refund for cancelled order #${id}`,
+                            status: 'Completed', // Assuming the refund is instant
+                        },
+                    },
+                    lastUpdated: new Date(),
+                },
+                { new: true, upsert: true } // Create wallet if not present
+            );
+
+            console.log(`Refund of ₹${refundAmount} added to wallet for user ${userId}`);
+        }
+
+
         await Order.findByIdAndUpdate(id,{$set:{status:'Cancelled',cancelleationReson:reason}})
         res.redirect('/orders')
     } catch (error) {

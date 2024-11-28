@@ -37,6 +37,42 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
+const getSaleReport=async (req,res)=>{
+    try {
+        const {page=1,limit=10,startDate,endDate}=req.query;
+        const filter={};
+
+        if(startDate||endDate){
+            filter.createdOn={};
+            if(startDate)filter.createdOn.$gte=new Date(startDate);
+            if(endDate)filter.createsOn.$lte=new Date(endDate)
+        }
+
+        const orders=await Order.find(filter).populate('user').populate('orderedItems.product').sort({createdOn:-1}).skip((page-1)*limit).limit(parseInt(limit))
+        const totalSales= await Order.aggregate([{$match:filter},{$group:{_id:null,total:{$sum:'$finalAmount'}}}]);
+        const totalDiscount=await Order.aggregate([{$match:filter},{$group:{_id:null,total:{$sum:'$discount'}}}]);
+        const uniqueCustomers=await Order.distinct('user',filter);
+        const totalOrders=await Order.countDocuments(filter);
+
+        res.render('salesReport',{
+            orders,
+            totalSales:totalSales[0]?.total||0,
+            totalDiscount:totalDiscount[0]?.total || 0,
+            uniqueCustomers: uniqueCustomers.length,
+            count: totalOrders,
+            currentPage: parseInt(page),
+            totalPages: Math.ceil(totalOrders / limit),
+            limit: parseInt(limit)
+        })
+
+
+
+
+    } catch (error) {
+        
+    }
+}
+
 
 
 
@@ -44,7 +80,8 @@ const updateOrderStatus = async (req, res) => {
 
 module.exports={
     getAllorders,
-    updateOrderStatus
+    updateOrderStatus,
+    getSaleReport
 
 }
 

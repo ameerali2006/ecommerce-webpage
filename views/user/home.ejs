@@ -313,25 +313,30 @@
                 
             <div class="container">
                 
-                <div class="sort">
-                    <select class="sort-select form-select" title="Sort products">
-                        <option selected disabled>Sort by</option>
-                        <option value="popularity">Popularity</option>
-                        <option value="price-low">Price: Low to High</option>
-                        <option value="price-high">Price: High to Low</option>
-                        <option value="rating">Average Ratings</option>
-                        <option value="featured">Featured</option>
-                        <option value="new">New Arrivals</option>
-                        <option value="az">Name: A to Z</option>
-                        <option value="za">Name: Z to A</option>
-                    </select>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="sort">
+                        <select class="sort-select form-select" title="Sort products">
+                            <option selected disabled>Sort by</option>
+                            <option value="popularity">Popularity</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="rating">Average Ratings</option>
+                            <option value="featured">Featured</option>
+                            <option value="new">New Arrivals</option>
+                            <option value="az">Name: A to Z</option>
+                            <option value="za">Name: Z to A</option>
+                        </select>
+                    </div>
+                    <div><a href="/allProducts" class="view-more d-none d-md-flex">View More<i class="fi-rs-angle-double-small-right"></i></a></div>
                 </div>
                 
                 <!--End nav-tabs-->
+                
                 <div class="tab-content wow fadeIn animated" id="myTabContent">
                     <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one">
+                        
                         <div class="row product-grid-4">
-                            <%for(let i=0;i<products.length;i++){%>
+                            <%for(let i=0;i<8;i++){%>
                             <div class="col-lg-3 col-md-4 col-12 col-sm-6">
                                 <div class="product-cart-wrap mb-30">
                                     <div class="product-img-action-wrap">

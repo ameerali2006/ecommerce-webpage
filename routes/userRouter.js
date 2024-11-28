@@ -9,10 +9,27 @@ const User=require('../models/userSchema')
 const checkOutController = require('../controllers/user/checkOutController');
 const orderController = require('../controllers/user/orderController');
 const wishlistController = require('../controllers/user/wishlistController');
+const walletController = require('../controllers/user/walletController');
 
 router.use(async(req, res, next) => {
     const userData = await User.findById(req.session.user);
     res.locals.user = userData || null;
+    next();
+});
+router.use(async (req, res, next) => {
+    if (req.path === "/login") {
+        return next();
+    }
+
+    if (req.session.user) {
+        const user = await User.findById(req.session.user);
+        if (user && user.isBlocked) {
+            return res.redirect("/login");
+        } else if (user) {
+
+            return next();
+        }
+    }
     next();
 });
 
@@ -44,8 +61,8 @@ router.get('/reset-password',profileController.getResetPasspage)
 router.post('/resend-forgot-otp',profileController.resendOtp)
 router.post('/reset-password',profileController.postNewPassword)
 
-router.get('/sort-products',userController.sortProducts);
-router.get('/productDetails',userController.getProductDetails)
+router.get('/sort-products',userAuth,userController.sortProducts);
+router.get('/productDetails',userAuth,userController.getProductDetails)
 
 router.get('/userProfile',userAuth,profileController.userProfile)
 router.get('/address',userAuth,profileController.getAddress)
@@ -61,23 +78,30 @@ router.get('/deleteAddress',userAuth,profileController.deleteAddress)
 router.post('/updateprofile',userAuth,profileController.updateProfile)
 
 router.post('/addToCart',userAuth,cartController.addToCart)
-router.get('/showCart',cartController.getShowCart)
-router.get('/showCart/remove',cartController.removeFromCart)
-router.get('/showCart/clearCart',cartController.clearCart)
-router.post('/showCart/updateCartQuantity',cartController.updateQuantity)
+router.get('/showCart',userAuth,cartController.getShowCart)
+router.get('/showCart/remove',userAuth,cartController.removeFromCart)
+router.get('/showCart/clearCart',userAuth,cartController.clearCart)
+router.get('/showCart/checkStock',userAuth,cartController.checkStock)
+router.post('/showCart/updateCartQuantity',userAuth,cartController.updateQuantity)
 
-router.get('/getCheckOut',checkOutController.getCheckOut)
-router.post('/postCheckOut',checkOutController.CheckOut)
-router.post('/createPayment',checkOutController.createPayment)
+router.get('/getCheckOut',userAuth,checkOutController.getCheckOut)
+router.post('/postCheckOut',userAuth,checkOutController.CheckOut)
+router.post('/createPayment',userAuth,checkOutController.createPayment)
+router.post('/verifyPayment',userAuth,checkOutController.verifyPayment)
 
-router.get('/orders',orderController.getOrders)
-router.get('/order-details',orderController.getOrderDetails)
-router.get('/cancel-order',orderController.getOrderCancel)
+router.get('/orders',userAuth,orderController.getOrders)
+router.get('/order-details',userAuth,orderController.getOrderDetails)
+router.get('/cancel-order',userAuth,orderController.getOrderCancel)
 
-router.post('/apply-coupon',orderController.applyCoupon)
-router.post('/remove-coupon',orderController.removeCoupon);
-router.get('/addtoWishlist',wishlistController.addToWishlist)
-router.get('/wishlist',wishlistController.getWishlist)
-router.delete('/removeFromWishlist',wishlistController.removeWishlist)
+router.post('/apply-coupon',userAuth,orderController.applyCoupon)
+router.post('/remove-coupon',userAuth,orderController.removeCoupon);
+router.get('/addtoWishlist',userAuth,wishlistController.addToWishlist)
+router.get('/wishlist',userAuth,wishlistController.getWishlist)
+router.delete('/removeFromWishlist',userAuth,wishlistController.removeWishlist)
 
+
+router.get('/wallet',userAuth, walletController.loadWallet);
+router.get('/allProducts',userController.getAllProduct)
+
+router.get('/search',userController.search)
 module.exports=router 

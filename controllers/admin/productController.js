@@ -91,7 +91,7 @@ const getAllProducts=async (req,res)=>{
         console.log('start');
         const search= req.query.search||'';
         console.log(search);
-        const page=req.query.page||1;
+        const page=parseInt(req.query.page,10)||1;
         console.log(page);
         const limit=4
         console.log(limit);

@@ -1,6 +1,6 @@
 <%- include("../../views/partials/admin/header") %>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
 <style>
     .status-pending { background-color: #f0ad4e; color: white; }
     .status-processing { background-color: #5bc0de; color: white; }
@@ -67,18 +67,22 @@
                                         <td>₹<%=orders[i].finalAmount.toLocaleString()%></td>
                                         <td><%=orders[i].paymentMethod%></td>
                                         <td>
-                                            <select data-order-id="<%= orders[i].orderId %>" onchange="updateOrderStatus(this.dataset.orderId, this.value)" 
-                                                class="badge rounded-pill status-<%= orders[i].status.toLowerCase().replace(/ /g, '-') %>">
-                                            <option value="Pending" <%= orders[i].status === 'Pending' ? 'selected' : '' %>>Pending</option>
-                                            <option value="Processing" <%= orders[i].status === 'Processing' ? 'selected' : '' %>>Processing</option>
-                                            <option value="Shipped" <%= orders[i].status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                                            <option value="Delivered" <%= orders[i].status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                                            <option value="Cancelled" <%= orders[i].status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
-                                            <option value="Return Request" <%= orders[i].status === 'Return Request' ? 'selected' : '' %>>Return Request</option>
-                                            <option value="Returned" <%= orders[i].status === 'Returned' ? 'selected' : '' %>>Returned</option>
-                                        </select>
-                                          
+                                            <select 
+                                                data-order-id="<%= orders[i].orderId %>" 
+                                                onchange="updateOrderStatus(this.dataset.orderId, this.value)" 
+                                                class="badge rounded-pill status-<%= orders[i].status.toLowerCase().replace(/ /g, '-') %>"
+                                                <%= orders[i].status === 'Delivered' || orders[i].status === 'Cancelled' ? 'disabled' : '' %>
+                                            >
+                                                <option value="Pending" <%= orders[i].status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                                                <option value="Processing" <%= orders[i].status === 'Processing' ? 'selected' : '' %>>Processing</option>
+                                                <option value="Shipped" <%= orders[i].status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                                <option value="Delivered" <%= orders[i].status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                                <option value="Cancelled" <%= orders[i].status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                                <option value="Return Request" <%= orders[i].status === 'Return Request' ? 'selected' : '' %>>Return Request</option>
+                                                <option value="Returned" <%= orders[i].status === 'Returned' ? 'selected' : '' %>>Returned</option>
+                                            </select>
                                         </td>
+                                        
                                     </tr>
                                 <%}%>
                             </tbody>
@@ -94,7 +98,7 @@
                             <a class="page-link d-flex justify-content-center align-items-center" 
                             href="<%= currentPage === 1 ? '#' : `?page=${currentPage - 1}` %>"
                             <%= currentPage === 1 ? 'aria-disabled="true"' : '' %>>
-                                <span class="material-icons">chevron_left</span>
+                                <span class="material-icons"><</span>
                             </a>
                         </li>
     
@@ -140,7 +144,7 @@
                             <a class="page-link d-flex justify-content-center align-items-center" 
                             href="<%= currentPage === totalPages ? '#' : `?page=${currentPage + 1}` %>"
                             <%= currentPage === totalPages ? 'aria-disabled="true"' : '' %>>
-                                <span class="material-icons">chevron_right</span>
+                                <span class="material-icons">></span>
                             </a>
                         </li>
                     </ul>

@@ -1,5 +1,14 @@
 
 <%- include('../partials/user/header') %>
+<style>
+.btn-quantity {
+    padding: 0 8px;
+    font-size: 16px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}
+</style>
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
 <div class="mobile-header-active mobile-header-wrapper-style">
@@ -199,15 +208,32 @@
                                         
                                     </td>
                                     <td class="price" data-title="Price"><span> <%= product.productId.salePrice%></span></td>
+                                    
                                     <td class="text-center" data-title="Stock">
-                                        <div class="detail-qty border radius  m-auto">
-                                            <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
-                                            <span class="qty-val" ><%= product.quantity%></span>
-                                            <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
-                                        </div>
+                                        <%if(product.productId.quantity > 0){%>
+                                            <div class="quantity-control">
+                                                <button type="button"
+                                                    onclick="updateQuantity('<%= product.productId._id %>', -1,'<%= product.productId.quantity %>')"
+                                                    class="btn-quantity">-</button>
+                                                <span id="quantity-<%= product.productId._id %>"
+                                                    class="quantity-display">
+                                                    <%= product.quantity %>
+                                                </span>
+                                                <button type="button"
+                                                    onclick="updateQuantity('<%= product.productId._id %>', 1,'<%= product.productId.quantity %>')"
+                                                    class="btn-quantity">+</button>
+                                            </div>
+                                        <%}else{%>
+                                            <span class="tex-danger">
+                                                Out of stock
+                                            </span>
+                                        <%}%>
+                                        
                                     </td>
+                                    
                                     <td class="text-right" data-title="Cart">
-                                        <span> <%= product.totalPrice%></span>
+                                        <span id="subtotal-<%= cart.items[i].productId._id %>"> $ <%=
+                                                product.totalPrice.toLocaleString()%></span>
                                     </td>
                                     <td class="action" data-title="Remove"><a href="#" onclick="return confirmRemove('<%= product.productId._id %>');" class="text-muted">
                                         <i class="fi-rs-trash"></i>
@@ -247,7 +273,8 @@
                                         <tbody>
                                             <tr>
                                                 <td class="cart_total_label">Cart Subtotal</td>
-                                                <td class="cart_total_amount"><span class="font-lg fw-900 text-brand">$<%=products.reduce((a,b)=>a+b.totalPrice,0).toLocaleString()%></span></td>
+                                                <td class="cart_total_amount"><span
+                                                        class="font-lg fw-900 text-brand" id="total-price">$<%=products.reduce((a,b)=>a+b.totalPrice,0).toLocaleString()%></span></td>
                                             </tr>
                                             
                                         </tbody>
@@ -263,57 +290,54 @@
     </section>
 </main>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.qty-up, .qty-down').forEach(button => {
-        button.addEventListener('click', async (event) => {
-            event.preventDefault();
-            const isIncrement = button.classList.contains('qty-up');
-            const productRow = button.closest('tr');
-            const productId = productRow.querySelector('.action a').getAttribute('href').split('=')[1];
-            const qtyDisplay = productRow.querySelector('.qty-val');
-            let quantity = parseInt(qtyDisplay.innerText, 10);
+function updateQuantity(productId, change, availableQuantity) {
+            const quantityElement = document.getElementById(`quantity-${productId}`);
+            const currentQuantity = parseInt(quantityElement.textContent);
 
-            // Check maximum limit for increment before updating anything
-            if (isIncrement && quantity >= 5) {
+            const maxQuantity = Math.min(availableQuantity, 5);
+
+            if (currentQuantity + change < 1) {
                 Swal.fire({
-                    title: 'Quantity Limit Reached',
-                    text: 'Maximum quantity limit is 5 items per product',
-                    icon: 'warning',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#3085d6'
+                    icon: "warning",
+                    title: "Minimum Quantity Reached",
+                    text: "The minimum quantity is 1.",
                 });
-                return; // Exit early without updating quantity
+                return;
+            }else if(currentQuantity + change > maxQuantity){
+                Swal.fire({
+                    icon: "warning",
+                    title: "Maximum Quantity Reached"
+                });
+                return;
             }
 
-            // Only update quantity if we haven't hit the limit
-            quantity = isIncrement ? quantity + 1 : Math.max(1, quantity - 1);
-            
-            try {
-                const response = await fetch(`/showCart/updateCartQuantity?id=${productId}&quantity=${quantity}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
+            fetch(`/showCart/updateCartQuantity`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ productId, change }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        quantityElement.textContent = data.newQuantity;
+                        document.getElementById(`subtotal-${productId}`).textContent = `$ ${data.newSubtotal.toLocaleString()}`;
+                        document.getElementById("total-price").textContent = `$ ${data.totalPrice.toLocaleString()}`;
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: data.message,
+                        });
                     }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
                 });
-                if (!response.ok) throw new Error('Failed to update quantity');
-                
-                const data = await response.json();
-                qtyDisplay.innerText = quantity; // Update display only after successful API call
-                productRow.querySelector('[data-title="Cart"]').innerText = data.updatedTotalPrice;
-                window.location.reload()
-            } catch (error) {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Failed to update quantity',
-                    icon: 'error',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#3085d6'
-                });
-                console.error('Error updating quantity:', error);
-            }
-        });
-    });
-});
+        }
+
+
 
 // Modified remove confirmation function to use SweetAlert
 function confirmRemove(productId) {

@@ -223,7 +223,20 @@
         }
 
         function viewImage(event, index) {
-            console.log("viewImage(event, index)");
+            const file = event.target.files[0];
+
+            if (!file) {
+                Swal.fire("Error", "No file selected.", "error");
+                return;
+            }
+
+            
+            const validTypes = ["image/png", "image/jpeg", "image/jpg"];
+            if (!validTypes.includes(file.type)) {
+                Swal.fire("Error", "Invalid file type. Please upload PNG, JPEG, or JPG images.", "error");
+                event.target.value = ""; 
+                return;
+            }
 
             let input = event.target;
             console.log('1');

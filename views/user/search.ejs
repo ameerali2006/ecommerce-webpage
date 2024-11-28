@@ -1,0 +1,60 @@
+<%- include('../partials/user/header') %>
+
+<h1>Search Results for "<%= query %>"</h1>
+<% if (results.length > 0) { %>
+    <div class="row product-grid-4">
+        <%for(let i=0;i<results.length;i++){%>
+        <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+            <div class="product-cart-wrap mb-30">
+                <div class="product-img-action-wrap">
+                    <div class="product-img product-img-zoom">
+                        <a href="/productDetails?id=<%=results[i]._id%>">
+                            <img class="default-img" src="/uploads/re-image/<%=results[i].productImage[0]%>" alt="<%=results[i].productImage[0]%>">
+                            <!-- <img class="hover-img" src="evara-frontend/assets/imgs/shop/product-1-2.jpg" alt=""> -->
+                        </a>
+                    </div>
+                    <div class="product-action-1">
+                        <!-- <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a> -->
+                        <a aria-label="Add To Wishlist" class="action-btn hover-up" onclick="wishlist(`<%=results[i]._id%>`)"><i class="fi-rs-heart"></i></a>
+                        <!-- <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> -->
+                    </div>
+                    
+                </div>
+                <div class="product-content-wrap">
+                    <div class="product-category">
+                        <a href="shop-grid-right.html"><%=results[i].category.name%></a>
+                    </div>
+                    <h2><%=results[i].productName%></h2>
+                    <div class="rating-result" title="90%">
+                        <span>
+                            <span><%=results[i].productOffer%></span>
+                        </span>
+                    </div>
+                    <div class="product-price">
+                        <span>$<%=results[i].salePrice%> </span>
+                        <span class="old-price">$<%=results[i].regularPrice%> </span>
+                    </div>
+                    
+                    <div class="product-action-1 show">
+                        <a aria-label="Add To Cart" class="action-btn hover-up" href="/addToCart?id=<%=results[i]._id%>"><i class="fi-rs-shopping-bag-add"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <%}%> 
+        
+    </div>
+    
+<% } else { %>
+    <p>No results found for your search.</p>
+<% } %>
+<%- include('../partials/user/footer') %>
+<ul>
+        <% results.forEach(product => { %>
+            <li>
+                <h2><%= product.name %></h2>
+                <p>Category: <%= product.category %></p>
+                <p>Price: $<%= product.price %></p>
+            </li>
+        <% }) %>
+    </ul>

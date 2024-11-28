@@ -1,0 +1,114 @@
+<%- include('../partials/user/header') %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<main class="main">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html" rel="nofollow">Home</a>
+                <span></span> Wallet
+            </div>
+        </div>
+    </div>
+    <section class="mt-50 mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="table shopping-summery text-center">
+                            <thead>
+                                <tr class="main-heading">
+                                    <th scope="col">Wallet Balance</th>
+                                    <!-- <th scope="col">Add Money</th>
+                                    <th scope="col">Withdraw</th> -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="balance" data-title="Balance"><strong style="font-size: 40px;">₹<%=balance.toLocaleString()%></strong></td>
+                                    <!-- <td data-title="Add Money">
+                                        <button onclick="confirmAddMoney()" class="btn btn-sm btn-primary">
+                                            <i class="fi-rs-mr-5"></i>Add Money
+                                        </button>
+                                    </td>
+                                    <td data-title="Withdraw">
+                                        <button onclick="confirmWithdraw()" class="btn btn-sm btn-warning">
+                                            <i class="fi-rs-money mr-5"></i>Withdraw
+                                        </button>
+                                    </td> -->
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-responsive mt-4">
+                        <table class="table shopping-summery text-center">
+                            <thead>
+                                <tr class="main-heading">
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Transaction Type</th>
+                                    <th scope="col">Amount</th>
+                                    <th scope="col">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <%for(let i=transactions.length-1;i>=0;i--){%>
+                                    <tr>
+                                        <td data-title="Date"><%=transactions[i].date.toLocaleDateString()%></td>
+                                        <td data-title="Transaction Type"><%=transactions[i].type%></td>
+                                        <%if(transactions[i].type === "Purchase"){%>
+                                            <td data-title="Amount"><b class="text-danger" style="font-size: 25px;">-</b>&nbsp;<strong class="text-danger">₹<%=transactions[i].amount.toLocaleString()%></strong></td>
+                                        <%}else{%>
+                                            <td data-title="Amount"><b class="text-success" style="font-size: 20px;">+</b>&nbsp;<strong class="text-success">₹<%=transactions[i].amount.toLocaleString()%></strong></td>
+                                        <%}%>
+                                        <td data-title="Status">
+                                            <span class="text-success font-weight-bold"><%=transactions[i].status%></span>
+                                        </td>
+                                    </tr>
+                                <%}%>
+                                    <td colspan="4">No more transactions available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<%- include('../partials/user/footer') %>
+
+<script>
+    function confirmAddMoney() {
+        Swal.fire({
+            title: "Add Money",
+            text: "Do you want to add money to your ",
+            icon: "info",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, add money!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Navigate or trigger add money process
+                window.location.href = "/add-money";
+            }
+        });
+    }
+
+    function confirmWithdraw() {
+        Swal.fire({
+            title: "Withdraw Money",
+            text: "Do you want to withdraw money from your ",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, withdraw!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Navigate or trigger withdraw process
+                window.location.href = "/withdraw";
+            }
+        });
+    }
+</script>

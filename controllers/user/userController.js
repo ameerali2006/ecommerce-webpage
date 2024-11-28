@@ -4,27 +4,58 @@ const env = require('dotenv').config()
 const bcrypt = require('bcrypt');
 const Category =require('../../models/categorySchema')
 const Product =require('../../models/productSchema')
+const Wallet =require('../../models/walletSchema')
+
+function generateReferalCode(length) {
+  let result = '';
+  const characters = 'abcdef0123456789';
+
+  for (let i = 0; i < length; i++) {
+    result += characters[Math.floor(Math.random() * characters.length)];
+  }
+
+  return result;
+
+}
 
 
+const search=async (req,res)=>{
+    try {
+        const {category,query}= req.query;
+        let searchItems={}
+        console.log(req.query);
+        if(category && category!=='all'){
+            
+            searchItems.category=category;
+
+        }
+        searchItems.productName={$regex:query,$options:'i'}
+        const results = await Product.find(searchItems)
+       
+        res.render('search', { results, query, category });
+    } catch (error) {
+        console.error(error);
+    }
+}
 
 const loadHomepage= async (req,res)=>{
     try {
         const user = req.session.user
-        console.log('1');
+        
         const categories=await Category.find({isListed:true})
-        console.log('2');
+         
 
         let productData=await Product.find({isBlock:false,category:{$in:categories.map(category=>category._id)},quantity:{$gt:0}}).populate('category','name')
-        console.log('3');
+          
 
         productData.sort((a,b)=>new Date(b.createOn)-new Date(a.createOn))
-        console.log('4');
+         
 
         productData=productData.slice(0)
-        console.log('5');
+        
 
         if(user){
-            console.log('6');
+             
 
             const userData=await User.findOne({_id:user})
             res.render('home',{user:userData,products:productData})
@@ -93,7 +124,7 @@ async function sendVerificationEmail(email,otp) {
 
 const signup = async (req, res) => {
     try {
-      const { name, phone, email, password, cpassword } = req.body;
+      const { name, phone, email, password, cpassword,referal } = req.body;
   
       if (password != cpassword) {
         return res.render("signup", { message: "Passwords do not match" });
@@ -113,9 +144,9 @@ const signup = async (req, res) => {
       if (!emailSent) {
         return res.json("email-error");
       }
-  
+    
       req.session.userOtp = otp;
-      req.session.userData = { name, phone, email, password };
+      req.session.userData = { name, phone, email, password ,referal};
   
       res.render("verify-OTP");
       console.log("OTP sent", otp);
@@ -148,15 +179,50 @@ const verifyOtp = async (req, res) => {
             const user = req.session.userData;
             console.log(user)
             const passwordHash = await securePassword(user.password);
+            const referalCode = generateReferalCode(8);
 
+            let refererBonus = 120;
+            let newUserBonus = 100;
+            if (user.referal) {
+                const refererUser = await User.findOne({ referalCode: user.referal });
+        
+                if (refererUser) {
+                  await Wallet.findOneAndUpdate(
+                    { userId: refererUser._id },
+                    {
+                      $inc: { balance: refererBonus },
+                      $push: {
+                        transactions: {
+                          type: "Referal",
+                          amount: refererBonus,
+                          description: "Referral bonus for referring a new user"
+                        }
+                      }
+                    },
+                    { upsert: true }
+                  );
+                }
+            }
             const saveUserData = new User({
                 name: user.name,   
                 email: user.email,
                 phone: user.phone,
-                password: passwordHash
+                password: passwordHash,
+                referalCode
             });
 
             await saveUserData.save();
+            await Wallet.create({
+                userId: saveUserData._id,
+                balance: user.referal ? newUserBonus : 0,
+                transactions: user.referal
+                  ? [{
+                    type: "Referal",
+                    amount: newUserBonus,
+                    description: "Referral bonus for signing up with a referral code"
+                  }]
+                  : []
+              });
             req.session.user = saveUserData._id;
 
             return res.json({
@@ -214,11 +280,16 @@ const resendOtp =async (req,res)=>{
 
 const loadLogin=async(req,res)=>{
     try {
-        if(!req.session.user){
-            return res.render('login')
-        }else{
-            res.redirect('/')
-        }
+        if (req.session.user) {
+            const user = await User.findById(req.session.user);
+            if (user && user.isBlocked) {
+              req.session.user = null;
+              return res.render("login", { message: "User is blocked" });
+            }
+            return res.redirect("/");
+          } else {
+            return res.render("login", { message: '' });
+          }
     } catch (error) {
         res.redirect('/pageNotFound')
         
@@ -337,6 +408,23 @@ const sortProducts= async (req,res)=>{
         res.status(500).json({ error: 'Failed to sort products' });
     }
 }
+const getAllProduct= async (req,res)=>{
+    try {
+        const user = req.session.user
+        const categories=await Category.find({isListed:true})
+        let productData=await Product.find({isBlock:false,category:{$in:categories.map(category=>category._id)},quantity:{$gt:0}}).populate('category','name')
+        productData.sort((a,b)=>new Date(b.createOn)-new Date(a.createOn))
+        productData=productData.slice(0)
+        if(user){
+            const userData=await User.findOne({_id:user})
+            res.render('shop',{user:userData,products:productData})
+        }else{
+            return res.render('shop',{products:productData})
+        }
+    } catch (error) {
+        
+    }
+}
 
   
 
@@ -355,4 +443,6 @@ module.exports={
     logout,
     getProductDetails,
     sortProducts,
+    search, 
+    getAllProduct
 }

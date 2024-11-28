@@ -204,43 +204,38 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <% cart.forEach(item=> { %>
+                                        <% cart.forEach(item => { %>
                                             <tr>
-                                                <td class="image product-thumbnail"><img
-                                                        src="/uploads/re-image/<%=item.productId.productImage[0]%>"
-                                                        alt="#"></td>
+                                                <td class="image product-thumbnail">
+                                                    <img src="/uploads/re-image/<%= item.productId.productImage[0] %>" alt="#">
+                                                </td>
                                                 <td>
-                                                    <h5><a href="/productDetails/<%= item.id %>">
-                                                            <%= item.productId.productName %>
-                                                        </a></h5>
+                                                    <h5><a href="/productDetails/<%= item.productId._id %>">
+                                                        <%= item.productId.productName %>
+                                                    </a></h5>
                                                     <span class="product-qty">x <%= item.quantity %></span>
                                                 </td>
-                                                <td>$<%= item.totalPrice %>
-                                                </td>
+                                                <td>$<%= item.productId.salePrice %></td>
                                             </tr>
-                                            <% }); %>
-                                                <tr>
-                                                    <th>SubTotal</th>
-                                                    <td class="product-subtotal" id="subtotalDisplay" colspan="2">$<%=
-                                                            cartTotal %>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Shipping</th>
-                                                    <td colspan="2"><em>$40</em></td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Discount</th>
-                                                    <td id="discountDisplay" colspan="2"><em>$0</em></td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Total</th>
-                                                    <td colspan="2" class="product-subtotal"><span
-                                                            class="font-xl text-brand fw-900" id="finalTotalDisplay">$
-                                                            <%= cartTotal +40 %>
-                                                        </span>
-                                                    </td>
-                                                </tr>
+                                        <% }); %>
+                                        <tr>
+                                            <th>SubTotal</th>
+                                            <td class="product-subtotal" id="subtotalDisplay" colspan="2">$<%= cartTotal %></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Shipping</th>
+                                            <td colspan="2"><em>$40</em></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Discount</th>
+                                            <td id="discountDisplay" colspan="2"><em>$0</em></td>
+                                        </tr> 
+                                        <tr>
+                                            <th>Total</th>
+                                            <td colspan="2" class="product-subtotal">
+                                                <span class="font-xl text-brand fw-900" id="finalTotalDisplay">$<%= cartTotal + 40 %></span>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -316,7 +311,7 @@
                                 <input type="hidden" id="hiddenCouponCode" name="CouponCode">
 
 
-                                <button type="button" class="btn-place-order" onclick="syncDiscount()">
+                                <button type="button" class="btn-place-order btn btn-success" onclick="syncDiscount()">
                                     Place Order
                                 </button>
                             </form>
@@ -445,7 +440,7 @@
             .then(data => {
                 if (data.success) {
                     const options = {
-                        key: "rzp_test_2aUGLgE6VrGTVa",
+                        key: '<%= key_id %>',
                         amount: finalPrice * 100,
                         currency: 'INR',
                         name: 'DIGITALAGE',
@@ -458,7 +453,25 @@
                             upi: true
                         },
                         handler: function (response) {
-                            document.getElementById('orderForm').submit();
+                            fetch('/verifyPayment',{
+                                method:'post',
+                                headers:{'Content-Type':'application/json'},
+                                body:JSON.stringify({
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_signature: response.razorpay_signature,
+                                })
+                            })
+                            .then(response=>response.json())
+                            .then(result=>{
+                                if (result.success){
+                                    Swal.fire('Payment Successful', 'Your order is confirmed', 'success');
+                                    document.getElementById('orderForm').submit();
+                                }else{
+                                    Swal.fire('Payment Verification Failed', 'Please try again', 'error');
+                                }
+                            })
+                            .catch(err => console.error('Verification error:', err));
 
                         },
                         prefill: {

@@ -1,0 +1,104 @@
+<%-include('../../views/partials/user/header')%>
+<main class="main">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html" rel="nofollow">Home</a>
+                <span></span> Shop
+            </div>
+        </div>
+    </div>
+    <section class="mt-50 mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="shop-product-fillter">
+                        <div class="totall-product">
+                            <p> We found <strong class="text-brand"><%=products.length%></strong> items for you!</p>
+                        </div>
+                        <div class="sort">
+                            <select class="sort-select form-select" title="Sort products">
+                                <option selected disabled>Sort by</option>
+                                <option value="popularity">Popularity</option>
+                                <option value="price-low">Price: Low to High</option>
+                                <option value="price-high">Price: High to Low</option>
+                                <option value="rating">Average Ratings</option>
+                                <option value="featured">Featured</option>
+                                <option value="new">New Arrivals</option>
+                                <option value="az">Name: A to Z</option>
+                                <option value="za">Name: Z to A</option>
+                            </select>
+                        </div>
+                         
+                    </div>
+                    <div class="container">
+                
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            
+                            
+                            
+                        </div>
+                        
+                        <!--End nav-tabs-->
+                        
+                        <div class="tab-content wow fadeIn animated" id="myTabContent">
+                            <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one">
+                                
+                                <div class="row product-grid-4">
+                                    <%for(let i=0;i<products.length;i++){%>
+                                    <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+                                        <div class="product-cart-wrap mb-30">
+                                            <div class="product-img-action-wrap">
+                                                <div class="product-img product-img-zoom">
+                                                    <a href="/productDetails?id=<%=products[i]._id%>">
+                                                        <img class="default-img" src="/uploads/re-image/<%=products[i].productImage[0]%>" alt="<%=products[i].productImage[0]%>">
+                                                        <!-- <img class="hover-img" src="evara-frontend/assets/imgs/shop/product-1-2.jpg" alt=""> -->
+                                                    </a>
+                                                </div>
+                                                <div class="product-action-1">
+                                                    <!-- <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a> -->
+                                                    <a aria-label="Add To Wishlist" class="action-btn hover-up" onclick="wishlist(`<%=products[i]._id%>`)"><i class="fi-rs-heart"></i></a>
+                                                    <!-- <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> -->
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="product-content-wrap">
+                                                <div class="product-category">
+                                                    <a href="shop-grid-right.html"><%=products[i].category.name%></a>
+                                                </div>
+                                                <h2><%=products[i].productName%></h2>
+                                                <div class="rating-result" title="90%">
+                                                    <span>
+                                                        <span><%=products[i].productOffer%></span>
+                                                    </span>
+                                                </div>
+                                                <div class="product-price">
+                                                    <span>$<%=products[i].salePrice%> </span>
+                                                    <span class="old-price">$<%=products[i].regularPrice%> </span>
+                                                </div>
+                                                
+                                                <div class="product-action-1 show">
+                                                    <a aria-label="Add To Cart" class="action-btn hover-up" href="/addToCart?id=<%=products[i]._id%>"><i class="fi-rs-shopping-bag-add"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <%}%> 
+                                    
+                                </div>
+                                <!--End product-grid-4-->
+                            </div>
+                            
+                        </div>
+                        <!--End tab-content-->
+                    </div>
+                    <!--pagination-->
+                    <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<%-include('../../views/partials/user/footer')%>

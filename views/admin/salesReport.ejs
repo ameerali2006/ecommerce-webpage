@@ -1,0 +1,381 @@
+<%- include('../partials/admin/header') %>
+
+<div class="card-body">
+    <!-- Header section with export buttons -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4>Sales Report</h4>
+        <div class="export-buttons">
+            <button class="btn btn-primary me-2" onclick="exportToPDF()">
+                <i class="material-icons md-file_download"></i> Export PDF
+            </button>
+            <button class="btn btn-success" onclick="exportToExcel()">
+                <i class="material-icons md-file_download"></i> Export Excel
+            </button>
+        </div>
+    </div>
+
+    <!-- Date filter section -->
+    <div class="d-flex justify-content-around">
+        <div class="mb-4 d-flex gap-3">
+            <div class="input-group" style="width: 200px;">
+                <select class="form-control" name="dateRange" id="dateRangeSelect">
+                    <option value="">Select Date Range</option>
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                    <option value="year">This Year</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-4 d-flex gap-3">
+            <form class="d-flex align-items-center">
+                <label for="startDate" class="me-2">Start Date:</label>
+                <input type="date" id="startDate" name="startDate" class="form-control me-3">
+                <label for="endDate" class="me-2">End Date:</label>
+                <input type="date" id="endDate" name="endDate" class="form-control me-3">
+            </form>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="card card-body mb-4">
+                <article class="icontext">
+                    <span class="icon icon-sm rounded-circle bg-primary-light">
+                        <i class="material-icons md-monetization_on text-primary"></i>
+                    </span>
+                    <div class="text">
+                        <h6 class="mb-1">Total Sales</h6>
+                        <span>₹<%= typeof totalSales !== 'undefined' ? totalSales.toLocaleString() : '0' %></span>
+                    </div>
+                </article>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card card-body mb-4">
+                <article class="icontext">
+                    <span class="icon icon-sm rounded-circle bg-success-light">
+                        <i class="material-icons md-shopping_bag text-success"></i>
+                    </span>
+                    <div class="text">
+                        <h6 class="mb-1">Total Orders</h6>
+                        <span><%= count %></span>
+                    </div>
+                </article>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card card-body mb-4">
+                <article class="icontext">
+                    <span class="icon icon-sm rounded-circle bg-warning-light">
+                        <i class="material-icons md-loyalty text-warning"></i>
+                    </span>
+                    <div class="text">
+                        <h6 class="mb-1">Total Discount</h6>
+                        <span>₹<%= typeof totalDiscount !== 'undefined' ? totalDiscount.toLocaleString() : '0' %></span>
+                    </div>
+                </article>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card card-body mb-4">
+                <article class="icontext">
+                    <span class="icon icon-sm rounded-circle bg-info-light">
+                        <i class="material-icons md-person text-info"></i>
+                    </span>
+                    <div class="text">
+                        <h6 class="mb-1">Total Customers</h6>
+                        <span><%= typeof uniqueCustomers !== 'undefined' ? uniqueCustomers : '0' %></span>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table section -->
+    <div class="table-responsive">
+        <table class="table table-hover" id="salesTable">
+            <thead>
+                <tr>
+                    <th>Sl No</th>
+                    <th>User Name</th>
+                    <th>Products</th>
+                    <th>Quantity</th>
+                    <th>Date</th>
+                    <th>Discount Amount</th>
+                    <th>Final Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% orders.forEach((order, index) => { %>
+                    <tr>
+                        <td><%= ((currentPage - 1) * limit) + index + 1 %></td>
+                        <td><%= order.user.username %></td>
+                        <td>
+                            <ul>
+                                <% order.orderedItems.forEach(item => { %>
+                                    <li><%= item.product.productName %></li>
+                                <% }) %>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <% order.orderedItems.forEach(item => { %>
+                                    <li><%= item.quantity %></li>
+                                <% }) %>
+                            </ul>
+                        </td>
+                        <td><%= order.createdOn.toLocaleDateString() %></td>
+                        <td>₹<%= order.discount.toLocaleString() %></td>
+                        <td>₹<%= order.finalAmount.toLocaleString() %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Updated Pagination section -->
+    <div class="pagination-area mt-15 mb-50">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-start">
+                <% if (currentPage > 1) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1" aria-label="First">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                <% } %>
+                
+                <% 
+                let startPage = Math.max(1, currentPage - 2);
+                let endPage = Math.min(totalPages, startPage + 4);
+                if (endPage - startPage < 4) {
+                    startPage = Math.max(1, endPage - 4);
+                }
+                %>
+
+                <% for (let i = startPage; i <= endPage; i++) { %>
+                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                    </li>
+                <% } %>
+
+                <% if (currentPage < totalPages) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= totalPages %>" aria-label="Last">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+    function exportToPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const table = document.getElementById('salesTable');
+
+        doc.setFontSize(18);
+        doc.text('Sales Report', 14, 20);
+        doc.setFontSize(12);
+        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+
+        const summaryCards = document.querySelectorAll('.card.card-body .text');
+        let summaryData = [];
+
+        summaryCards.forEach(card => {
+            const title = card.querySelector('h6').textContent.trim();
+            const value = card.querySelector('span').textContent.trim().replace('₹', 'Rs. ');
+            summaryData.push({ title, value });
+        });
+
+
+        let yPosition = 40;
+        doc.setFontSize(14);
+        doc.text('Sales Summary:', 14, yPosition);
+
+        doc.setFontSize(12);
+        yPosition += 10;
+
+        summaryData.forEach(item => {
+            doc.text(`${item.title}: ${item.value}`, 14, yPosition);
+            yPosition += 8;
+        });
+
+        yPosition += 10;
+        doc.autoTable({
+            html: table,
+            startY: yPosition,
+            didParseCell: (data) => {
+                if (data.cell.text[0]) {
+                    data.cell.text[0] = data.cell.text[0].replace('₹', 'Rs. ');
+                }
+            },
+            styles: {
+                fontSize: 10,
+            },
+        });
+
+        doc.save('sales-report.pdf');
+    }
+
+
+    function exportToExcel() {
+        const table = document.getElementById('salesTable');
+        const wb = XLSX.utils.table_to_book(table, { sheet: "Sales Report" });
+        XLSX.writeFile(wb, 'sales-report.xlsx');
+    }
+
+    const dateRangeFormHtml = `
+        <div class="mb-4 d-flex gap-3">
+            <div class="input-group" style="width: 200px;">
+                <select class="form-control" name="dateRange" id="dateRangeSelect">
+                    <option value="">Select Date Range</option>
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                    <option value="year">This Year</option>
+                </select>
+            </div>
+        </div>`;
+
+    // Replace your existing date filter JavaScript with this updated version
+    function initializeDateFilter() {
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        const table = document.getElementById('salesTable');
+        const tbody = table.getElementsByTagName('tbody')[0];
+        const rows = tbody.getElementsByTagName('tr');
+        const dateRangeSelect = document.getElementById('dateRangeSelect');
+
+        // Helper function to parse date
+        function parseDate(dateStr) {
+            const [day,month,year] = dateStr.split('/').map(Number);
+            return new Date(year, month - 1, day);
+        }
+
+        function formatCurrency(amount) {
+            return amount.toLocaleString('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).replace('INR', '₹');
+        }
+
+        function filterTable() {
+            const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
+            const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
+
+            if (startDate) startDate.setHours(0, 0, 0, 0);
+            if (endDate) endDate.setHours(23, 59, 59, 999);
+
+            let visibleRows = 0;
+            let totalSales = 0;
+            let totalDiscount = 0;
+            const uniqueCustomers = new Set();
+
+            for (const row of rows) {
+                const dateCell = row.cells[4].textContent.trim();
+                const rowDate = parseDate(dateCell);
+
+                if (!rowDate) continue;
+
+                let showRow = true;
+                if (startDate && rowDate < startDate) showRow = false;
+                if (endDate && rowDate > endDate) showRow = false;
+
+                row.style.display = showRow ? '' : 'none';
+
+                if (showRow) {
+                    visibleRows++;
+                    const finalAmount = parseFloat(row.cells[6].textContent.replace(/[₹,]/g, '')) || 0;
+                    const discount = parseFloat(row.cells[5].textContent.replace(/[₹,]/g, '')) || 0;
+                    const customer = row.cells[1].textContent.trim();
+
+                    totalSales += finalAmount;
+                    totalDiscount += discount;
+                    uniqueCustomers.add(customer);
+                }
+            }
+
+            const summaryCards = document.querySelectorAll('.card.card-body .text');
+            summaryCards.forEach(card => {
+                const title = card.querySelector('h6').textContent.trim();
+                const valueSpan = card.querySelector('span');
+
+                switch (title) {
+                    case 'Total Sales':
+                        valueSpan.textContent = formatCurrency(totalSales);
+                        break;
+                    case 'Total Orders':
+                        valueSpan.textContent = visibleRows;
+                        break;
+                    case 'Total Discount':
+                        valueSpan.textContent = formatCurrency(totalDiscount);
+                        break;
+                    case 'Total Customers':
+                        valueSpan.textContent = uniqueCustomers.size;
+                        break;
+                }
+            });
+        }
+
+        function handleDateRangeSelection(e) {
+            e.preventDefault();
+
+            const today = new Date();
+            // today.setHours(0, 0, 0, 0);
+
+            const startDate = new Date(today);
+
+            switch (this.value) {
+                case 'today':
+                    startDateInput.value = today.toISOString().split('T')[0];
+                    endDateInput.value = today.toISOString().split('T')[0];
+                    break;
+                case 'week':
+                    startDate.setDate(today.getDate() - 7);
+                    startDateInput.value = startDate.toISOString().split('T')[0];
+                    endDateInput.value = today.toISOString().split('T')[0];
+                    break;
+                case 'month':
+                    startDate.setMonth(today.getMonth() - 1);
+                    startDateInput.value = startDate.toISOString().split('T')[0];
+                    endDateInput.value = today.toISOString().split('T')[0];
+                    break;
+                case 'year':
+                    startDate.setFullYear(today.getFullYear() - 1);
+                    startDateInput.value = startDate.toISOString().split('T')[0];
+                    endDateInput.value = today.toISOString().split('T')[0];
+                    break;
+                default:
+                    startDateInput.value = '';
+                    endDateInput.value = '';
+                    break;
+            }
+            filterTable();
+        }
+
+
+        dateRangeSelect.addEventListener('change', handleDateRangeSelection);
+        startDateInput.addEventListener('change', filterTable);
+        endDateInput.addEventListener('change', filterTable);
+
+        filterTable();
+    }
+
+    document.addEventListener('DOMContentLoaded', initializeDateFilter);
+
+</script>
+
+<%- include('../partials/admin/footer') %>
