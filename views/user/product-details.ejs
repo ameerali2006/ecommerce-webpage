@@ -53,8 +53,8 @@
                                     </div>
                                     <div class="clearfix product-price-cover">
                                         <div class="product-price primary-color float-left">
-                                            <ins><span class="text-brand">$<%=data.salePrice%></span></ins>
-                                            <ins><span class="old-price font-md ml-15">$<%=data.regularPrice%></span></ins>
+                                            <ins><span class="text-brand">₹<%=data.salePrice%></span></ins>
+                                            <ins><span class="old-price font-md ml-15">₹<%=data.regularPrice%></span></ins>
                                             <span class="save-price  font-md color3 ml-15"></span>
                                         </div>
                                     </div>
@@ -92,6 +92,7 @@
                                         </ul>
                                     </div> -->
                                     <div class="bt-1 border-color-1 mt-30 mb-30"></div>
+                                    <%if(data.quantity>0){%>
                                     <div class="detail-extralink">
                                         <div class="detail-qty border radius">
                                             <a href="#" class="qty-down"><i onclick="updateQuantity(-1)"  class="fi-rs-angle-small-down"></i></a>
@@ -112,7 +113,8 @@
                                                     <i class="fi-rs-angle-small-down"></i>
                                                 </a>
                                             </div>
-                                        </div>                                        -->
+                                        </div>    -->
+                                        
                                         <div class="product-extra-link2">
                                             
                                             <form action="/addToCart?id=<%= data._id %>" method="POST"
@@ -128,6 +130,15 @@
                                             <a aria-label="Add To Wishlist" class="action-btn hover-up"op href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
                                             <a aria-label="Compare" class="action-btn hover-up" href="sh-compare.html"><i class="fi-rs-shuffle"></i></a>
                                         </div>
+                                        <%}else{%>
+                                            <span class="text-danger">
+                                                Out of stock
+                                            </span>
+                                            &nbsp;&nbsp;
+                                            <button style="background-color: darkred;" type="submit" class="">Sold Out</button>
+
+
+                                        <%}%>
                                     </div>
                                     <ul class="product-meta font-xs color-grey mt-50">
                                         

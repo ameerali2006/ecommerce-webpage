@@ -12,25 +12,51 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                    <div class="shop-product-fillter">
-                        <div class="totall-product">
-                            <p> We found <strong class="text-brand"><%=products.length%></strong> items for you!</p>
+                    <div class="col-lg-12">
+                        <a class="shop-badge rounded-pill alert-successgle" href="#">
+                            <span class="fi-rs-badge rounded-pill alert-success5"></span>
+                            Filters
+                            <i class="fi-rs-angle-small-down angle-down"></i>
+                            <i class="fi-rs-angle-small-up angle-up"></i>
+                        </a>
+                        <div class="shop-product-fillter-header">
+                            <div class="row">
+                                <!-- Category Filter -->
+                                <div class="col-lg-3 col-md-4 mb-lg-0 mb-md-5 mb-sm-5">
+                                    <h5 class="mb-20">Categories</h5>
+                                    <ul class="categor-list" id="categoryFilter">
+                                        <li class="cat-item text-muted">
+                                            <button data-category="" class="badge rounded-pill alert-success">All Categories</button>
+                                        </li>
+                                        <% categories.forEach(category => { %>
+                                            <li class="cat-item text-muted">
+                                                <button data-category="<%= category._id %>" class="badge rounded-pill alert-success"><%= category.name %></button>
+                                            </li>
+                                        <% }); %>
+                                    </ul>
+                                </div>
+                            
+                                <!-- Price Filter -->
+                                <div class="col-lg-3 col-md-4 mb-lg-0 mb-md-5 mb-sm-5">
+                                    <h5 class="mb-20">Price Range</h5>
+                                    <ul class="categor-list" id="priceFilter">
+                                        <li class="cat-item text-muted">
+                                            <button data-min="0" data-max="1000" class="badge rounded-pill alert-success">0.00 - 1000.00</button>
+                                        </li>
+                                        <li class="cat-item text-muted">
+                                            <button data-min="1000" data-max="2000" class="badge rounded-pill alert-success">1000.00 - 2000.00</button>
+                                        </li>
+                                        <li class="cat-item text-muted">
+                                            <button data-min="2000" data-max="3000" class="badge rounded-pill alert-success">2000.00 - 3000.00</button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
                         </div>
-                        <div class="sort">
-                            <select class="sort-select form-select" title="Sort products">
-                                <option selected disabled>Sort by</option>
-                                <option value="popularity">Popularity</option>
-                                <option value="price-low">Price: Low to High</option>
-                                <option value="price-high">Price: High to Low</option>
-                                <option value="rating">Average Ratings</option>
-                                <option value="featured">Featured</option>
-                                <option value="new">New Arrivals</option>
-                                <option value="az">Name: A to Z</option>
-                                <option value="za">Name: Z to A</option>
-                            </select>
-                        </div>
-                         
+                        
                     </div>
+                    
                     <div class="container">
                 
                         <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -44,7 +70,7 @@
                         <div class="tab-content wow fadeIn animated" id="myTabContent">
                             <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one">
                                 
-                                <div class="row product-grid-4">
+                                <div class="row product-grid-4 " id="productList">
                                     <%for(let i=0;i<products.length;i++){%>
                                     <div class="col-lg-3 col-md-4 col-12 col-sm-6">
                                         <div class="product-cart-wrap mb-30">
@@ -55,10 +81,14 @@
                                                         <!-- <img class="hover-img" src="evara-frontend/assets/imgs/shop/product-1-2.jpg" alt=""> -->
                                                     </a>
                                                 </div>
-                                                <div class="product-action-1">
-                                                    <!-- <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a> -->
+                                                <div class="product-action-1" >
+                                                    <% const isInWishlist = wishlistProductIds.includes(products[i]._id.toString()); %>
+                                                    <%if(!isInWishlist){%>
                                                     <a aria-label="Add To Wishlist" class="action-btn hover-up" onclick="wishlist(`<%=products[i]._id%>`)"><i class="fi-rs-heart"></i></a>
-                                                    <!-- <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> -->
+                                                    <%}else{%>
+
+                                                    <a aria-label="Remove From Wishlist" href="" class="action-btn hover-up" onclick="removeFromWishlist(`<%=products[i]._id%>`)"><i  class="fi-rs-heart-broken"></i></a>
+                                                    <%}%>
                                                 </div>
                                                 
                                             </div>
@@ -73,8 +103,8 @@
                                                     </span>
                                                 </div>
                                                 <div class="product-price">
-                                                    <span>$<%=products[i].salePrice%> </span>
-                                                    <span class="old-price">$<%=products[i].regularPrice%> </span>
+                                                    <span>₹<%=products[i].salePrice%> </span>
+                                                    <span class="old-price">₹<%=products[i].regularPrice%> </span>
                                                 </div>
                                                 
                                                 <div class="product-action-1 show">
@@ -93,12 +123,175 @@
                         <!--End tab-content-->
                     </div>
                     <!--pagination-->
+                    
                     <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
-                        
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination">
+                                <% if (currentPage > 1) { %>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                <% } %>
+                                <% for (let i = 1; i <= totalPages; i++) { %>
+                                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                                    </li>
+                                <% } %>
+                                <% if (currentPage < totalPages) { %>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                <% } %>
+                            </ul>
+                        </nav>
                     </div>
+                    
                 </div>
             </div>
         </div>
     </section>
 </main>
 <%-include('../../views/partials/user/footer')%>
+<!-- Include SweetAlert CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const categoryFilter = document.getElementById('categoryFilter');
+    const priceFilter = document.getElementById('priceFilter');
+    const productList = document.getElementById('productList');
+
+    let selectedCategory = '';
+    let minPrice = '';
+    let maxPrice = '';
+
+    const fetchData = async () => {
+        try {
+            const response = await fetch(`/getFilteredData?category=${selectedCategory}&minPrice=${minPrice}&maxPrice=${maxPrice}`);
+            const data = await response.json();
+            console.log(data);
+
+            // Update Product List
+            productList.innerHTML = '';
+            data.products.forEach(product => {
+                productList.innerHTML += `
+                    <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+                                        <div class="product-cart-wrap mb-30">
+                                            <div class="product-img-action-wrap">
+                                                <div class="product-img product-img-zoom">
+                                                    <a href="/productDetails?id=${product._id}">
+                                                        <img class="default-img" src="/uploads/re-image/${product.productImage[0]}" alt="${product.productImage[0]}">
+                                                        <!-- <img class="hover-img" src="evara-frontend/assets/imgs/shop/product-1-2.jpg" alt=""> -->
+                                                    </a>
+                                                </div>
+                                                
+                                                
+                                            </div>
+                                            <div class="product-content-wrap">
+                                                <div class="product-category">
+                                                    <a href="shop-grid-right.html">${product.category.name}</a>
+                                                </div>
+                                                <h2>${product.productName}</h2>
+                                                <div class="rating-result" title="90%">
+                                                    <span>
+                                                        <span>${product.productOffer}</span>
+                                                    </span>
+                                                </div>
+                                                <div class="product-price">
+                                                    <span>₹${product.salePrice} </span>
+                                                    <span class="old-price">₹${product.regularPrice} </span>
+                                                </div>
+                                                
+                                                <div class="product-action-1 show">
+                                                    <a aria-label="Add To Cart" class="action-btn hover-up" href="/addToCart?id=${product._id}"><i class="fi-rs-shopping-bag-add"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                `;
+            });
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+    // Handle Category Filter
+    categoryFilter.addEventListener('click', (event) => {
+        if (event.target.classList.contains('badge')) {
+            selectedCategory = event.target.getAttribute('data-category');
+            fetchData();
+        }
+    });
+
+    // Handle Price Filter
+    priceFilter.addEventListener('click', (event) => {
+        if (event.target.classList.contains('badge')) {
+            minPrice = event.target.getAttribute('data-min');
+            maxPrice = event.target.getAttribute('data-max');
+            fetchData();
+        }
+    });
+});
+
+    function removeFromWishlist(productId) {
+        fetch(`/removeFromWishlist?id=${productId}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                            icon: 'success',
+                            title: 'Removed!',
+                            text: data.message, 
+                        }).then(()=>window.location.reload())
+                } else {
+                    Swal.fire('Oops!', data.message, 'error');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+    function wishlist(productId){
+            if (!productId) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Action',
+                    text: 'Product ID is missing!',
+                });
+                return;
+            }
+            console.log('work 1');
+            fetch(`/addtoWishlist?id=${productId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('work 1');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: data.message,
+                        }).then(()=>window.location.reload())
+                    } else {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Oops!',
+                            text: data.message,
+                        });
+                    }
+                })
+                
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong. Please try again later.',
+                    });
+                });
+        }
+        
+        
+</script>

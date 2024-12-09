@@ -72,6 +72,39 @@
                     <% } else { %>
                         <p class="text-muted">You have no orders yet.</p>
                     <% } %>
+                    <div class="pagination justify-content-center mt-4">
+                        <nav>
+                            <ul class="pagination">
+                                <% if (hasPreviousPage) { %>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=<%= previousPage %>&limit=<%= limit %>">Previous</a>
+                                    </li>
+                                <% } else { %>
+                                    <li class="page-item disabled">
+                                        <a class="page-link">Previous</a>
+                                    </li>
+                                <% } %>
+                    
+                                <% for (let i = 1; i <= totalPages; i++) { %>
+                                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                        <a class="page-link" href="?page=<%= i %>&limit=<%= limit %>"><%= i %></a>
+                                    </li>
+                                <% } %>
+                    
+                                <% if (hasNextPage) { %>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=<%= nextPage %>&limit=<%= limit %>">Next</a>
+                                    </li>
+                                <% } else { %>
+                                    <li class="page-item disabled">
+                                        <a class="page-link">Next</a>
+                                    </li>
+                                <% } %>
+                            </ul>
+                        </nav>
+                    </div>
+                    
+                    
                 </div>
             </div>
         </div>

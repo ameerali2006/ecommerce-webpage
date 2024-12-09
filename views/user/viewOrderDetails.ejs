@@ -97,7 +97,9 @@
                                 </span>
                             </h5>
                         </div>
-                        <a href="#" class="btn btn-outline-success btn-success">Track Order</a>
+                        <%if(order.status == "Delivered"){%>
+                            <a href="/download-invoice?id=<%= order._id %>" class="btn btn-primary">Download Invoice</a>
+                        <%}%>
                     </div>
                 </div>
 

@@ -57,7 +57,7 @@ const orderSchema=new Schema({
         enum: ['Pending', 'Processing', 'Completed', 'Failed'],
         default: 'Pending'
     },
-    invoiceDate:{
+    invoiceDate:{  
         type:Date
     },
     status:{

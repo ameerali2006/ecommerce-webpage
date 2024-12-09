@@ -9,7 +9,7 @@ const getAllorders=async (req,res)=>{
     try {
         const limit=5;
         const page=Math.max(1,parseInt(req.query.page)||1)
-        const orders=await Order.find().populate('user').populate('orderedItems.product').limit(limit).skip((page-1)*limit);
+        const orders=(await Order.find().sort({createdOn:-1}).populate('user').populate('orderedItems.product').limit(limit).skip((page-1)*limit));
         const count=await Order.countDocuments()
         res.render('orders',{orders,totalPages:Math.ceil(count/limit),currentPage:page})
     } catch (error) {

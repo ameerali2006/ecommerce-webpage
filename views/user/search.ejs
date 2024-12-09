@@ -13,11 +13,16 @@
                             <!-- <img class="hover-img" src="evara-frontend/assets/imgs/shop/product-1-2.jpg" alt=""> -->
                         </a>
                     </div>
-                    <div class="product-action-1">
-                        <!-- <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a> -->
+                    <div class="product-action-1" >
+                        <% const isInWishlist = wishlistProductIds.includes(results[i]._id.toString()); %>
+                        <%if(!isInWishlist){%>
                         <a aria-label="Add To Wishlist" class="action-btn hover-up" onclick="wishlist(`<%=results[i]._id%>`)"><i class="fi-rs-heart"></i></a>
-                        <!-- <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> -->
+                        <%}else{%>
+
+                        <a aria-label="Remove From Wishlist" href="" class="action-btn hover-up" onclick="removeFromWishlist(`<%=results[i]._id%>`)"><i  class="fi-rs-heart-broken"></i></a>
+                        <%}%>
                     </div>
+                    
                     
                 </div>
                 <div class="product-content-wrap">
@@ -31,8 +36,8 @@
                         </span>
                     </div>
                     <div class="product-price">
-                        <span>$<%=results[i].salePrice%> </span>
-                        <span class="old-price">$<%=results[i].regularPrice%> </span>
+                        <span>₹<%=results[i].salePrice%> </span>
+                        <span class="old-price">₹<%=results[i].regularPrice%> </span>
                     </div>
                     
                     <div class="product-action-1 show">
@@ -49,12 +54,66 @@
     <p>No results found for your search.</p>
 <% } %>
 <%- include('../partials/user/footer') %>
-<ul>
-        <% results.forEach(product => { %>
-            <li>
-                <h2><%= product.name %></h2>
-                <p>Category: <%= product.category %></p>
-                <p>Price: $<%= product.price %></p>
-            </li>
-        <% }) %>
-    </ul>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function removeFromWishlist(productId) {
+        fetch(`/removeFromWishlist?id=${productId}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                            icon: 'success',
+                            title: 'Removed!',
+                            text: data.message, 
+                        }).then(()=>window.location.reload())
+                } else {
+                    Swal.fire('Oops!', data.message, 'error');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+    function wishlist(productId){
+            if (!productId) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Action',
+                    text: 'Product ID is missing!',
+                });
+                return;
+            }
+            console.log('work 1');
+            fetch(`/addtoWishlist?id=${productId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('work 1');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: data.message,
+                        }).then(() => {
+                            // Update the UI to reflect the wishlist change
+                                document.querySelector(`#wishlist-btn-${productId}`).classList.add('added');
+                            });
+                    } else {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Oops!',
+                            text: data.message,
+                        });
+                    }
+                })
+                
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong. Please try again later.',
+                    });
+                });
+        }
+        
+ 
+</script>

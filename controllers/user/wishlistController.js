@@ -70,7 +70,12 @@ const getWishlist=async (req, res) => {
 };
 const removeWishlist=async (req, res) => {
     try {
+        console.log('remove from wishlst');
         const userId = req.session.user;
+        if(!userId){
+            console.log('user  not found');
+            res.status(400).redirct('/login')
+        }
         const productId = req.query.id;
 
         await Wishlist.updateOne(

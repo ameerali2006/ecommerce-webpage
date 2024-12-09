@@ -232,7 +232,7 @@
                                     </td>
                                     
                                     <td class="text-right" data-title="Cart">
-                                        <span id="subtotal-<%= cart.items[i].productId._id %>"> $ <%=
+                                        <span id="subtotal-<%= cart.items[i].productId._id %>"> ₹ <%=
                                                 product.totalPrice.toLocaleString()%></span>
                                     </td>
                                     <td class="action" data-title="Remove"><a href="#" onclick="return confirmRemove('<%= product.productId._id %>');" class="text-muted">
@@ -274,13 +274,15 @@
                                             <tr>
                                                 <td class="cart_total_label">Cart Subtotal</td>
                                                 <td class="cart_total_amount"><span
-                                                        class="font-lg fw-900 text-brand" id="total-price">$<%=products.reduce((a,b)=>a+b.totalPrice,0).toLocaleString()%></span></td>
+                                                        class="font-lg fw-900 text-brand" id="total-price">₹<%=products.reduce((a,b)=>a+b.totalPrice,0).toLocaleString()%></span></td>
                                             </tr>
                                             
                                         </tbody>
                                     </table>
                                 </div>
+                                <%if(products.length!=0){%>
                                 <a href="/getCheckOut" class="btn "> <i class="fi-rs-box-alt mr-10"></i> Proceed To CheckOut</a>
+                                <%}%>
                             </div>
                         </div>
                     </div>
@@ -322,8 +324,8 @@ function updateQuantity(productId, change, availableQuantity) {
                 .then(data => {
                     if (data.success) {
                         quantityElement.textContent = data.newQuantity;
-                        document.getElementById(`subtotal-${productId}`).textContent = `$ ${data.newSubtotal.toLocaleString()}`;
-                        document.getElementById("total-price").textContent = `$ ${data.totalPrice.toLocaleString()}`;
+                        document.getElementById(`subtotal-${productId}`).textContent = `₹ ${data.newSubtotal.toLocaleString()}`;
+                        document.getElementById("total-price").textContent = `₹ ${data.totalPrice.toLocaleString()}`;
                     } else {
                         Swal.fire({
                             icon: "error",

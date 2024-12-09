@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const Category =require('../../models/categorySchema')
 const Product =require('../../models/productSchema')
 const Wallet =require('../../models/walletSchema')
+const Wishlist =require('../../models/wishlistSchema')
 
 function generateReferalCode(length) {
   let result = '';
@@ -21,6 +22,7 @@ function generateReferalCode(length) {
 
 const search=async (req,res)=>{
     try {
+        const user =req.session.user
         const {category,query}= req.query;
         let searchItems={}
         console.log(req.query);
@@ -31,8 +33,13 @@ const search=async (req,res)=>{
         }
         searchItems.productName={$regex:query,$options:'i'}
         const results = await Product.find(searchItems)
+        let wishlistProductIds = [];
+        if (user) {
+            const wishlist = await Wishlist.findOne({ userId: user }, { 'products.productId': 1, _id: 0 });
+            wishlistProductIds = wishlist ? wishlist.products.map(item => item.productId.toString()) : [];
+        }
        
-        res.render('search', { results, query, category });
+        res.render('search', { results, query, category,wishlistProductIds });
     } catch (error) {
         console.error(error);
     }
@@ -52,15 +59,20 @@ const loadHomepage= async (req,res)=>{
          
 
         productData=productData.slice(0)
+        let wishlistProductIds = [];
+        if (user) {
+            const wishlist = await Wishlist.findOne({ userId: user }, { 'products.productId': 1, _id: 0 });
+            wishlistProductIds = wishlist ? wishlist.products.map(item => item.productId.toString()) : [];
+        }
         
 
         if(user){
              
 
             const userData=await User.findOne({_id:user})
-            res.render('home',{user:userData,products:productData})
+            res.render('home',{user:userData,products:productData,wishlistProductIds})
         }else{
-            return res.render('home',{products:productData})
+            return res.render('home',{products:productData,wishlistProductIds})
         }
         
     } catch (error) {
@@ -408,23 +420,77 @@ const sortProducts= async (req,res)=>{
         res.status(500).json({ error: 'Failed to sort products' });
     }
 }
-const getAllProduct= async (req,res)=>{
+const getAllProduct = async (req, res) => {
     try {
-        const user = req.session.user
-        const categories=await Category.find({isListed:true})
-        let productData=await Product.find({isBlock:false,category:{$in:categories.map(category=>category._id)},quantity:{$gt:0}}).populate('category','name')
-        productData.sort((a,b)=>new Date(b.createOn)-new Date(a.createOn))
-        productData=productData.slice(0)
-        if(user){
-            const userData=await User.findOne({_id:user})
-            res.render('shop',{user:userData,products:productData})
-        }else{
-            return res.render('shop',{products:productData})
+        const user = req.session.user;
+        const categories = await Category.find({ isListed: true });
+
+        // Get filter parameters
+        const { category, minPrice, maxPrice, page = 1 } = req.query;
+        const limit = 8; // Number of products per page
+        const skip = (page - 1) * limit;
+
+        // Build filter conditions
+        let filterConditions = { isBlock: false, quantity: { $gt: 0 } };
+
+        if (category) filterConditions.category = category;
+        if (minPrice || maxPrice) {
+            filterConditions.salePrice = {};
+            if (minPrice) filterConditions.salePrice.$gte = parseFloat(minPrice);
+            if (maxPrice) filterConditions.salePrice.$lte = parseFloat(maxPrice);
         }
+
+        const totalProducts = await Product.countDocuments(filterConditions);
+        const productData = await Product.find(filterConditions)
+            .populate('category', 'name')
+            .sort({ createOn: -1 }) // Newest first
+            .skip(skip)
+            .limit(limit);
+
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        let wishlistProductIds = [];
+        if (user) {
+            const wishlist = await Wishlist.findOne({ userId: user }, { 'products.productId': 1, _id: 0 });
+            wishlistProductIds = wishlist ? wishlist.products.map(item => item.productId.toString()) : [];
+        }
+
+        res.render('shop', {
+            user,
+            products: productData,
+            totalPages,
+            currentPage: parseInt(page),
+            wishlistProductIds,
+            categories,
+        });
     } catch (error) {
-        
+        console.error('Error fetching products:', error);
+        res.redirect('/pageNotFound');
+    }
+};
+
+const getFilterData=async (req, res) => {
+    const { category, minPrice, maxPrice } = req.query;
+
+    let query = {};
+    if (category) query.category = category;
+    if (minPrice && maxPrice) {
+        query.salePrice = { $gte: parseInt(minPrice), $lte: parseInt(maxPrice) };
+    }
+
+    try {
+        const products = await Product.find(query).populate('category','name');
+        const priceRanges = {
+            min: await Product.find().sort({ salePrice: 1 }).limit(1).then(d => d[0]?.salePrice || 0),
+            max: await Product.find().sort({ salePrice: -1 }).limit(1).then(d => d[0]?.salePrice || 0),
+        };
+
+        res.json({ products, priceRanges });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch products' });
     }
 }
+
 
   
 
@@ -444,5 +510,6 @@ module.exports={
     getProductDetails,
     sortProducts,
     search, 
-    getAllProduct
+    getAllProduct,
+    getFilterData
 }

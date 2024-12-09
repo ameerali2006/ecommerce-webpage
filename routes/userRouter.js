@@ -45,6 +45,8 @@ router.post('/verify-otp',userController.verifyOtp);
 router.post('/resend-otp',userController.resendOtp)
 router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}))
 router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/sign'}),(req,res)=>{
+    req.session.user=req.user;
+    
     res.redirect('/')
 
 })
@@ -85,14 +87,20 @@ router.get('/showCart/checkStock',userAuth,cartController.checkStock)
 router.post('/showCart/updateCartQuantity',userAuth,cartController.updateQuantity)
 
 router.get('/getCheckOut',userAuth,checkOutController.getCheckOut)
+router.post('/place-order-initial',userAuth,checkOutController.placeOrderInitial)
 router.post('/postCheckOut',userAuth,checkOutController.CheckOut)
 router.post('/createPayment',userAuth,checkOutController.createPayment)
-router.post('/verifyPayment',userAuth,checkOutController.verifyPayment)
-
+router.post('/verify-payment',userAuth,checkOutController.verifyPayment)
+router.post('/place-order',checkOutController.placeOrder);
+router.post('/create-order',checkOutController.createOrder);
+router.post('/retry-payment',checkOutController.retryPayment);
+router.get('/order-confirmation',userAuth, checkOutController.orderConfirm)
+router.get('/payment-failed',userAuth,checkOutController.paymentFailed);
+router.post('/retry-payment',checkOutController.retryPayment);
 router.get('/orders',userAuth,orderController.getOrders)
 router.get('/order-details',userAuth,orderController.getOrderDetails)
 router.get('/cancel-order',userAuth,orderController.getOrderCancel)
-
+router.get('/download-invoice',userAuth,orderController.downloadInvoice)
 router.post('/apply-coupon',userAuth,orderController.applyCoupon)
 router.post('/remove-coupon',userAuth,orderController.removeCoupon);
 router.get('/addtoWishlist',userAuth,wishlistController.addToWishlist)
@@ -101,7 +109,11 @@ router.delete('/removeFromWishlist',userAuth,wishlistController.removeWishlist)
 
 
 router.get('/wallet',userAuth, walletController.loadWallet);
+router.post('/create-wallet',userAuth,walletController.createWallet)
+router.post('/verify-wallet',userAuth,walletController.verifyWallet)
+
 router.get('/allProducts',userController.getAllProduct)
 
+router.get('/getFilteredData',userController.getFilterData)
 router.get('/search',userController.search)
 module.exports=router 

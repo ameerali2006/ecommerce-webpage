@@ -10,6 +10,7 @@ const orderController=require('../controllers/admin/orderController')
 const couponController=require('../controllers/admin/couponController')
 const stockController=require('../controllers/admin/stockController')
 
+
 const multer=require('multer');
 const storage=require('../helpers/multer')
 const uploads=multer({storage:storage})

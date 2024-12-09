@@ -346,10 +346,15 @@
                                                 <!-- <img class="hover-img" src="evara-frontend/assets/imgs/shop/product-1-2.jpg" alt=""> -->
                                             </a>
                                         </div>
-                                        <div class="product-action-1">
-                                            <!-- <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a> -->
+                                        <div class="product-action-1" >
+                                            <% const isInWishlist = wishlistProductIds.includes(products[i]._id.toString()); %>
+                                            <%if(!isInWishlist){%>
+                                            
                                             <a aria-label="Add To Wishlist" class="action-btn hover-up" onclick="wishlist(`<%=products[i]._id%>`)"><i class="fi-rs-heart"></i></a>
-                                            <!-- <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> -->
+                                            <%}else{%>
+
+                                            <a aria-label="Remove From Wishlist" href="" class="action-btn hover-up" onclick="removeFromWishlist(`<%=products[i]._id%>`)"><i  class="fi-rs-heart-broken"></i></a>
+                                            <%}%>
                                         </div>
                                         
                                     </div>
@@ -364,13 +369,19 @@
                                             </span>
                                         </div>
                                         <div class="product-price">
-                                            <span>$<%=products[i].salePrice%> </span>
-                                            <span class="old-price">$<%=products[i].regularPrice%> </span>
+                                            <span>₹<%=products[i].salePrice%> </span>
+                                            <span class="old-price">₹<%=products[i].regularPrice%> </span>
                                         </div>
-                                        
+                                        <%if(products[i].quantity>0){%>
                                         <div class="product-action-1 show">
                                             <a aria-label="Add To Cart" class="action-btn hover-up" href="/addToCart?id=<%=products[i]._id%>"><i class="fi-rs-shopping-bag-add"></i></a>
                                         </div>
+                                        <%}else{%>
+                                            <span class="tex-danger">
+                                                Out of stock
+                                            </span>
+
+                                        <%}%>
                                     </div>
                                 </div>
                             </div>
@@ -1643,7 +1654,23 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        function wishlist(productId){
+        function removeFromWishlist(productId) {
+        fetch(`/removeFromWishlist?id=${productId}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                            icon: 'success',
+                            title: 'Removed!',
+                            text: data.message, 
+                        }).then(()=>window.location.reload())
+                } else {
+                    Swal.fire('Oops!', data.message, 'error');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+    function wishlist(productId){
             if (!productId) {
                 Swal.fire({
                     icon: 'warning',
@@ -1663,7 +1690,7 @@
                             icon: 'success',
                             title: 'Success',
                             text: data.message,
-                        });
+                        }).then(()=>window.location.reload())
                     } else {
                         Swal.fire({
                             icon: 'info',
@@ -1672,6 +1699,7 @@
                         });
                     }
                 })
+                
                 .catch(error => {
                     console.error('Error:', error);
                     Swal.fire({
@@ -1680,7 +1708,9 @@
                         text: 'Something went wrong. Please try again later.',
                     });
                 });
-        }
+    }
+        
+ 
         // Method 2: Using jQuery
         $(document).ready(function() {
             $('.form-select').on('change', async function(e) {
@@ -1732,8 +1762,8 @@
                                             </span>
                                         </div>
                                         <div class="product-price">
-                                            <span>$${product.salePrice}</span>
-                                            <span class="old-price">$${product.regularPrice}</span>
+                                            <span>₹${product.salePrice}</span>
+                                            <span class="old-price">₹${product.regularPrice}</span>
                                         </div>
                                         <div class="product-action-1 show">
                                             <a aria-label="Add To Cart" class="action-btn hover-up" href="/addToCart?id=${product._id}"><i class="fi-rs-shopping-bag-add"></i></a>
