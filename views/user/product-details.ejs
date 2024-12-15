@@ -127,8 +127,16 @@
                                         </div>
                                         <a href="/getCheckOut?id=<%= data._id%>"  ><button type="submit" class="btn btn-success">Buy now</button></a>
                                         <div class="product-extra-link2">
-                                            <a aria-label="Add To Wishlist" class="action-btn hover-up"op href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                            <a aria-label="Compare" class="action-btn hover-up" href="sh-compare.html"><i class="fi-rs-shuffle"></i></a>
+                                            <% const isInWishlist = wishlistProductIds.includes(data._id.toString()); %>
+                                            <%if(!isInWishlist){%>
+                                            
+                                            <a aria-label="Add To Wishlist" class="action-btn hover-up" onclick="wishlist(`<%=data._id%>`)"><i class="fi-rs-heart"></i></a>
+                                            <%}else{%>
+
+                                            <a aria-label="Remove From Wishlist" href="" class="action-btn hover-up" onclick="removeFromWishlist(`<%=data._id%>`)"><i  class="fi-rs-heart-broken"></i></a>
+                                            <%}%>
+                                            <!-- <a aria-label="Add To Wishlist" class="action-btn hover-up"op href="shop-wishlist.html"><i class="fi-rs-heart "></i></a> -->
+                                          
                                         </div>
                                         <%}else{%>
                                             <span class="text-danger">
@@ -481,6 +489,61 @@
 </main>
 
 <script>
+    function removeFromWishlist(productId) {
+        fetch(`/removeFromWishlist?id=${productId}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                            icon: 'success',
+                            title: 'Removed!',
+                            text: data.message, 
+                        }).then(()=>window.location.reload())
+                } else {
+                    Swal.fire('Oops!', data.message, 'error');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        function wishlist(productId){
+            if (!productId) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Action',
+                    text: 'Product ID is missing!',
+                });
+                return;
+            }
+            console.log('work 1');
+            fetch(`/addtoWishlist?id=${productId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('work 1');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: data.message,
+                        }).then(()=>window.location.reload())
+                    } else {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Oops!',
+                            text: data.message,
+                        });
+                    }
+                })
+                
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong. Please try again later.',
+                    });
+                });
+        }
     function syncQuantity() {
                 const qtyVal = document.getElementById('qty-val').value;
                 document.getElementById('cart-quantity').value = qtyVal;

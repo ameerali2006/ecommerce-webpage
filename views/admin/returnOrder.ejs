@@ -1,0 +1,126 @@
+<%- include("../../views/partials/admin/header") %>
+<br>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="mb-4">
+            <h1 class="display-4 fw-bold text-dark mb-2">Return Data Requests</h1>
+            <p class="lead text-muted">Manage and process customer return requests</p>
+        </div>
+        
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col" class="text-uppercase text-muted small fw-bold">Order ID</th>
+                                <th scope="col" class="text-uppercase text-muted small fw-bold">User</th>
+                                <th scope="col" class="text-uppercase text-muted small fw-bold">Reason</th>
+                                <th scope="col" class="text-uppercase text-muted small fw-bold">Refund Amount</th>
+                                <th scope="col" class="text-uppercase text-muted small fw-bold">Status</th>
+                                <th scope="col" class="text-uppercase text-muted small fw-bold">Date</th>
+                                <th scope="col" class="text-uppercase text-muted small fw-bold">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% returns.forEach(returnData => { %>
+                                <tr>
+                                    <td class="align-middle"><%= returnData.orderId?.orderId || 'N/A' %></td>
+                                    <td class="align-middle"><%= returnData.userId?.name || 'N/A' %></td>
+                                    <td class="align-middle">
+                                        <div class="text-truncate" style="max-width: 200px;">
+                                            <%= returnData.reason || 'No reason provided' %>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle fw-bold">₹<%= (returnData.refundAmount || 0).toFixed(2) %></td>
+                                    <td class="align-middle">
+                                        <% 
+                                        let badgeClass;
+                                        if(returnData.returnDataStatus === 'approved') {
+                                            badgeClass = 'bg-success';
+                                        } else if(returnData.returnDataStatus === 'rejected') {
+                                            badgeClass = 'bg-danger';
+                                        } else {
+                                            badgeClass = 'bg-warning text-dark';
+                                        }
+                                        %>
+                                        <span class="badge <%= badgeClass %>">
+                                            <%= returnData.returnStatus || 'pending' %>
+                                        </span>
+                                    </td>
+                                    <td class="align-middle">
+                                        <%= new Date(returnData.createdAt || Date.now()).toLocaleDateString('en-US', { 
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric'
+                                        }) %>
+                                    </td>
+                                    <td class="align-middle">
+                                        <% if(returnData.returnStatus === 'pending') { %>
+                                            <form action="/admin/returnDataUpdate?id=<%= returnData._id %>" method="POST" class="d-flex gap-2">
+                                                <button type="submit" name="status" value="approved" 
+                                                    class="btn btn-sm btn-success">
+                                                    Approve
+                                                </button>
+                                                <button type="submit" name="status" value="rejected"
+                                                    class="btn btn-sm btn-danger">
+                                                    Reject
+                                                </button>
+                                            </form>
+                                        <% } else { %>
+                                            <span class="text-muted small">No actions available</span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="pagination-area mt-15 mb-50 container">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-start">
+
+                <!-- Page Numbers -->
+                <% 
+                let startPage = Math.max(1, currentPage - 2);
+                let endPage = Math.min(totalPages, startPage + 4);
+                
+                if (endPage - startPage < 4) {
+                    startPage = Math.max(1, endPage - 4);
+                }
+                
+                if (startPage > 1) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1">1</a>
+                    </li>
+                    <% if (startPage > 2) { %>
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    <% } %>
+                <% } %>
+
+                <% for(let i = startPage; i <= endPage; i++) { %>
+                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                    </li>
+                <% } %>
+
+                <% if (endPage < totalPages) { %>
+                    <% if (endPage < totalPages - 1) { %>
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    <% } %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= totalPages %>"><%= totalPages %></a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
+    </div><br>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<%- include("../../views/partials/admin/footer") %>

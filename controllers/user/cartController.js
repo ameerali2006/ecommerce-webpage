@@ -4,68 +4,82 @@ const Product =require('../../models/productSchema')
 const Category =require('../../models/categorySchema')
 
 
-const addToCart=async (req,res)=>{
+const addToCart = async (req, res) => {
     try {
-        const productId= req.query.id;
-        const qty=parseInt(req.body.quantity,10) 
-        const productData=await Product.findOne({_id:productId})
-        console.log(qty);
-        
-        if(!productData){
-            console.log('not founded');
-            return res.status(404).redirect('/pageNotFound')
+        const productId = req.query.id;
+        const qty = parseInt(req.body.quantity, 10);
+
+        if (!req.session.user) {
+            console.log('User not logged in. Redirecting to login page.');
+            return res.redirect('/login');
         }
 
-        const recProducts=await Product.find({category:productData.category,_id:{$ne:productData.id}}).limit(4)
-        const price=productData.salePrice;
-        let totalPrice=price*qty
-         
-        
-        const userId=req.session.user;
-        const userData = await User.findOne({ _id: userId })
-        
-        if(!userId){
-            console.log('user not found');
-            res.redirect('/login')
+        const userId = req.session.user;
+        const productData = await Product.findOne({ _id: productId });
+
+        if (!productData) {
+            console.log(`Product with ID ${productId} not found.`);
+            return res.status(404).redirect('/pageNotFound');
         }
-        
-        const existCart=await Cart.findOne({userId:userId})
-        
-        if(existCart){
-            const existProductIndex=existCart.items.findIndex(item=>item.productId.toString()===productId)
-            if(existProductIndex>=0){
-                existCart.items[existProductIndex].quantity
-                existCart.items[existProductIndex].totalPrice+=totalPrice
-                console.log(existCart.items[existProductIndex].quantity+=qty,existCart.items[existProductIndex].totalPrice+=totalPrice);
-            }else{
-                existCart.items.push({productId,quantity:qty,price,totalPrice})
+
+        if (productData.quantity < qty) {
+            console.log(`Insufficient stock for product ID ${productId}.`);
+            return res.redirect('/showCart');
+        }
+
+        const price = productData.salePrice;
+        const totalPrice = price * qty;
+
+        // Find user's cart
+        let cart = await Cart.findOne({ userId });
+
+        if (cart) {
+            const productIndex = cart.items.findIndex(
+                (item) => item.productId.toString() === productId
+            );
+
+            if (productIndex >= 0) {
+                // Update existing product in cart
+                const existingQuantity = cart.items[productIndex].quantity;
+
+                if (productData.quantity < existingQuantity + qty) {
+                    console.log(
+                        `Not enough stock to add ${qty} units for product ID ${productId}.`
+                    );
+                    return res.redirect('/showCart');
+                }
+
+                cart.items[productIndex].quantity += qty;
+                cart.items[productIndex].totalPrice += totalPrice;
+
+                console.log(
+                    `Updated cart item: Product ID ${productId}, Quantity: ${cart.items[productIndex].quantity}, Total Price: ${cart.items[productIndex].totalPrice}`
+                );
+            } else {
+                // Add new product to cart
+                cart.items.push({ productId, quantity: qty, price, totalPrice });
+                console.log(`Added new product ID ${productId} to cart.`);
             }
-            await existCart.save()
-            console.log(existCart);
-        }else{
-            const addcart=new Cart({
-                userId:userData._id,
-                items:[{productId,quantity:qty,price,totalPrice}]
-            })
-            
-    
-            console.log(addcart);
-            await addcart.save()
+        } else {
+            // Create a new cart
+            cart = new Cart({
+                userId,
+                items: [{ productId, quantity: qty, price, totalPrice }],
+            });
+            console.log(`Created a new cart for user ID ${userId}.`);
         }
-        
-        
-        
 
-
-        
-        
-        
-        res.redirect('/showCart')
+        // Save the updated cart
+        await cart.save();
+        console.log(`Cart saved successfully for user ID ${userId}.`);
+        res.redirect('/showCart');
     } catch (error) {
-        console.error(error);
-        res.redirect('/admin/pageerror')
+        console.error('Error adding to cart:', error.message);
+        res.redirect('/pageError');
     }
-}
+};
+
+
 const getShowCart=async (req,res)=>{
     try {
         const userId=req.session.user;

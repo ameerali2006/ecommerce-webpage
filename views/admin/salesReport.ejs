@@ -112,7 +112,7 @@
                 <% orders.forEach((order, index) => { %>
                     <tr>
                         <td><%= ((currentPage - 1) * limit) + index + 1 %></td>
-                        <td><%= order.user.username %></td>
+                        <td><%= order.user.name %></td>
                         <td>
                             <ul>
                                 <% order.orderedItems.forEach(item => { %>
@@ -180,59 +180,134 @@
 
 <script>
     function exportToPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const table = document.getElementById('salesTable');
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    const dateRangeSelect = document.getElementById('dateRangeSelect');
 
-        doc.setFontSize(18);
-        doc.text('Sales Report', 14, 20);
-        doc.setFontSize(12);
-        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+    const today = new Date(); // Correct initialization
+    let startDate = startDateInput.value ? new Date(startDateInput.value) : new Date();
+    let endDate = endDateInput.value ? new Date(endDateInput.value) : today;
 
-        const summaryCards = document.querySelectorAll('.card.card-body .text');
-        let summaryData = [];
-
-        summaryCards.forEach(card => {
-            const title = card.querySelector('h6').textContent.trim();
-            const value = card.querySelector('span').textContent.trim().replace('₹', 'Rs. ');
-            summaryData.push({ title, value });
-        });
-
-
-        let yPosition = 40;
-        doc.setFontSize(14);
-        doc.text('Sales Summary:', 14, yPosition);
-
-        doc.setFontSize(12);
-        yPosition += 10;
-
-        summaryData.forEach(item => {
-            doc.text(`${item.title}: ${item.value}`, 14, yPosition);
-            yPosition += 8;
-        });
-
-        yPosition += 10;
-        doc.autoTable({
-            html: table,
-            startY: yPosition,
-            didParseCell: (data) => {
-                if (data.cell.text[0]) {
-                    data.cell.text[0] = data.cell.text[0].replace('₹', 'Rs. ');
-                }
-            },
-            styles: {
-                fontSize: 10,
-            },
-        });
-
-        doc.save('sales-report.pdf');
+    switch (dateRangeSelect.value) {
+        case 'today':
+            startDate = new Date(today); // Set startDate as today
+            endDate = new Date(today); // Set endDate as today
+            break;
+        case 'week':
+            startDate.setDate(today.getDate() - 7); // 7 days before today
+            break;
+        case 'month':
+            startDate.setMonth(today.getMonth() - 1); // 1 month before today
+            break;
+        case 'year':
+            startDate.setFullYear(today.getFullYear() - 1); // 1 year before today
+            break;
+        default:
+            startDate = '';
+            endDate = '';
+            break;
     }
+    if(startDate!=''){
+        startDate=startDate.toISOString()
+
+    }else if(endDate!=''){
+        endDate=endDate.toISOString()
+
+    }
+
+    // Ensure the startDate and endDate are in ISO string format for URL parameters
+    const params = new URLSearchParams({
+        start: startDate,
+        end: endDate
+    });
+
+    fetch(`/admin/salesReportPDF?${params.toString()}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch the PDF');
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            // Create a blob URL
+            const url = window.URL.createObjectURL(blob);
+
+            // Create a temporary link element
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'salesReport.pdf'; // Specify the file name
+            document.body.appendChild(a);
+
+            // Trigger the download
+            a.click();
+
+            // Cleanup
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+            console.error('Error downloading the PDF:', error);
+            alert('Failed to download the sales report. Please try again.');
+        });
+}
 
 
     function exportToExcel() {
-        const table = document.getElementById('salesTable');
-        const wb = XLSX.utils.table_to_book(table, { sheet: "Sales Report" });
-        XLSX.writeFile(wb, 'sales-report.xlsx');
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        const dateRangeSelect = document.getElementById('dateRangeSelect');
+
+        const today = new Date(); // Correct initialization
+        let startDate = startDateInput.value ? new Date(startDateInput.value) : new Date();
+        let endDate = endDateInput.value ? new Date(endDateInput.value) : today;
+
+        switch (dateRangeSelect.value) {
+            case 'today':
+                startDate = new Date(today); // Set startDate as today
+                endDate = new Date(today); // Set endDate as today
+                break;
+            case 'week':
+                startDate.setDate(today.getDate() - 7); // 7 days before today
+                break;
+            case 'month':
+                startDate.setMonth(today.getMonth() - 1); // 1 month before today
+                break;
+            case 'year':
+                startDate.setFullYear(today.getFullYear() - 1); // 1 year before today
+                break;
+            default:
+                startDate = '';
+                endDate = '';
+                break;
+        }
+        if(startDate!=''){
+            startDate=startDate.toISOString()
+
+        }else if(endDate!=''){
+            endDate=endDate.toISOString()
+
+        }
+
+        // Ensure the startDate and endDate are in ISO string format for URL parameters
+        const params = new URLSearchParams({
+            start: startDate,
+            end: endDate
+        });
+
+        fetch(`/admin/salesReportExcel?${params.toString()}`)
+        .then(response => response.blob()) // Get the response as a blob (binary data)
+                .then(blob => {
+                    // Create a link element to trigger the download
+                    const link = document.createElement('a');
+                    const url = URL.createObjectURL(blob);
+                    link.href = url;
+                    link.download = 'generated-file.xlsx'; // Default file name
+                    link.click(); // Programmatically click the link to trigger download
+                    URL.revokeObjectURL(url); // Clean up the URL object
+                })
+                .catch(error => {
+                    console.error('Error downloading the file:', error);
+                });
     }
 
     const dateRangeFormHtml = `
@@ -256,6 +331,11 @@
         const tbody = table.getElementsByTagName('tbody')[0];
         const rows = tbody.getElementsByTagName('tr');
         const dateRangeSelect = document.getElementById('dateRangeSelect');
+        console.log(startDateInput.value);
+        console.log('hdhj');
+        console.log(endDateInput.value);
+        console.log('hdhj');
+        console.log(dateRangeSelect.value);
 
         // Helper function to parse date
         function parseDate(dateStr) {
@@ -275,6 +355,9 @@
         function filterTable() {
             const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
             const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
+
+            console.log(startDate);
+            console.log(endDate);
 
             if (startDate) startDate.setHours(0, 0, 0, 0);
             if (endDate) endDate.setHours(23, 59, 59, 999);

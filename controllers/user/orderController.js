@@ -4,8 +4,10 @@ const Product =require('../../models/productSchema')
 const Address = require('../../models/addressSchema')
 const Coupon = require('../../models/couponSchema')
 const Wallet=require('../../models/walletSchema')
+const Return=require('../../models/returnSchema')
 const PDFDocument = require('pdfkit');
 const path = require('path');
+const { exists } = require('../../models/categorySchema')
 
 const getOrders= async (req,res)=>{
     try {
@@ -109,6 +111,8 @@ const getOrderCancel= async (req,res)=>{
             );
 
             console.log(`Refund of ₹${refundAmount} added to wallet for user ${userId}`);
+        }else if(order.paymentMethod=='COD'){
+            await Order.findByIdAndUpdate(id,{$set:{paymentStatus:'Failed'}})
         }
 
 
@@ -327,14 +331,70 @@ const generateFooter = (doc, order) => {
         .text('Thank you for your business. For any queries, please contact support@yourcompany.com', 50, 750, { align: 'center' });
 };
 
+const returnRequest=async (req,res)=>{
+    try {
+        const userId= req.session.user;
+        const {orderId,reason}= req.body;
+        const order=await Order.findById(orderId);
+        if(!order){
+            return res.status(400).json({message:'order not found'})
+        }
+        const exists=await Return.findOne({orderId});
+        if(exists){
+            return res.status(400).json({message:'order is already apply for return request'})
+        }
+        const refundAmount=order.finalAmount;
+        const newReturn=new Return({
+            userId,
+            orderId,
+            reason,
+            refundAmount,
+
+
+
+        })
+        await newReturn.save();
+        return res.status(200).json({message:'return request is successfully applied'})
+
+
+
+    } catch (error) {
+        console.log('error on return ');
+        console.error(error);
+        return res.status(400).json({message:'not found'})
+
+        
+    }
+}
+const getCoupons=async (req,res)=>{
+    try {
+        const user = req.session.user;
+        if(!user){
+        return res.redirect('/login');
+        }
+        const currentDate = new Date(); 
+
+        const coupons = await Coupon.find({
+        isList: true,
+        userId: { $ne: user },
+        expireOn:{$gt:currentDate}
+        });
+        
+        res.render('couponList',{coupons});
+    } catch (error) {
+        
+    }
+}
 
 module.exports={
+    getCoupons,
     getOrders,
     getOrderDetails,
     getOrderCancel,
     applyCoupon,
     removeCoupon,
-    downloadInvoice
+    downloadInvoice,
+    returnRequest
 }
 
 

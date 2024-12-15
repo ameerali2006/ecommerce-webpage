@@ -283,6 +283,9 @@
                                                 <button id="removeCouponBtn" class="d-none btn btn-md"
                                                     onclick="removeCoupon()">Remove Coupon</button>
                                             </div>
+                                            <div>
+                                                <a href="/coupons" class="btn btn-success">Show Available coupons</a>
+                                            </div>
                                         </form>
                                         <p id="couponMessage" class="text-success d-none"></p>
                                         <p id="couponError" class="text-danger d-none"></p>
@@ -294,7 +297,7 @@
                                 <div class="payment-methods">
                                     <h5 class="payment-section-title">Choose Payment Method</h5>
 
-                                    <div class="payment-option" onclick="selectPayment('cod')">
+                                    <div id="COD" class="payment-option" onclick="selectPayment('cod')">
                                         <input type="radio" name="payment_method" id="cod" value="COD" checked>
                                         <label for="cod">
                                             Cash on Delivery
@@ -562,7 +565,7 @@
                 } else if (paymentMethod === 'Online') {
                     await processOnlinePayment(formData);
                 } else {
-                    await processWalletPayment(formData)
+                    // await processWalletPayment(formData)
                 }
             } catch (error) {
                 
@@ -701,115 +704,7 @@
 
 
     
-        // address sestup
-        // document.getElementById('orderForm').addEventListener('submit', async function (e) {
-
-        //     e.preventDefault();
-
-
-           
-
-        //     const selectedPayment = document.querySelector('input[name="payment_method"]:checked').value;
-            
-            
-        //     if (!selectedPayment) {
-        //         Swal.fire({
-        //             icon: 'warning',
-        //             title: 'Select Payment Method',
-        //             text: 'Please select a payment method before placing your order.',
-        //         });
-        //         return;
-        //     }
-        //     if(selectedPayment=='online'){
-        //         await razorpayPayment();
-        //         return;
-
-                
-        //     }
-
-
-        //     this.submit();
-
-        // });
-        // end of address setup
-
-        // razorpay setup
-        // function razorpayPayment(){
-        //     const finalAmount=document.getElementById('finalTotalDisplay');
-        //     const finalPrice = finalAmount ? finalAmount.textContent.replace('₹', '').trim() : '0';
-            
-        //     fetch('/createPayment', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify({ amount: finalPrice })
-        //     })
-        //     .then(response =>response.json())
-        //     .then(data => {
-        //         if (data.success) {
-        //             const options = {
-        //                                  amount: finalPrice * 100,
-        //                 currency: 'INR',
-        //                 name: 'DIGITALAGE',
-        //                 description: 'Order Payment',
-        //                 order_id: data.orderId,
-        //                 method: {
-        //                     card: true,
-        //                     netbanking: true,
-        //                     wallet: true,
-        //                     upi: true
-        //                 },
-        //                 handler: function (response) {
-        //                     fetch('/verifyPayment',{
-        //                         method:'post',
-        //                         headers:{'Content-Type':'application/json'},
-        //                         body:JSON.stringify({
-                                    
-        //                             razorpay_payment_id: response.razorpay_payment_id,
-        //                             razorpay_order_id: response.razorpay_order_id,
-        //                             razorpay_signature: response.razorpay_signature,
-        //                         })
-        //                     })
-        //                     .then(response=>response.json())
-        //                     .then(result=>{
-        //                         if (result.success){
-        //                             Swal.fire('Payment Successful', 'Your order is confirmed', 'success');
-                                    
-        //                         }else{
-        //                             Swal.fire('Payment Verification Failed', 'Please try again', 'error');
-        //                         }
-        //                     })
-        //                     .catch(err => console.error('Verification error:', err));
-
-        //                 },
-        //                 prefill: {
-        //                     name: "Your Name",
-        //                     email: "your@example.com",
-        //                     contact: "1234567890"
-        //                 },
-        //                 theme: {
-        //                     color: "#39b4ac"
-        //                 }
-
-
-        //             };
-        //             const razorpay = new Razorpay(options);
-        //             razorpay.open();
-        //         }else{
-        //             Swal.fire('Error', 'Order creation failed', 'error');
-        //         }
-        //     })
-        //     .catch(error => console.error('Error initiating Razorpay payment:', error)); 
         
-        
-        
-        // }
-
-
-
-
-        //  coupon setup
         
 
         function updateDisplay({ subtotal, discount, final }) {
@@ -818,6 +713,7 @@
                 discount: document.getElementById('discountDisplay'),
                 final: document.getElementById('finalTotalDisplay')
             };
+           
             if (elements.subtotal) elements.subtotal.textContent = `₹${subtotal.toLocaleString()}`;
             if (elements.discount) elements.discount.textContent = `₹${discount.toLocaleString()}`;
             if (elements.final) elements.final.textContent = `₹${final.toLocaleString()}`;

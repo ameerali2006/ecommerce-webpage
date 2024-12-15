@@ -15,6 +15,7 @@
     "chartjs-plugin-zoom": "^2.2.0",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
+    "exceljs": "^4.4.0",
     "express": "^4.21.1",
     "express-session": "^1.18.1",
     "mongodb": "^6.10.0",

@@ -99,6 +99,7 @@ router.get('/payment-failed',userAuth,checkOutController.paymentFailed);
 router.post('/retry-payment',checkOutController.retryPayment);
 router.get('/orders',userAuth,orderController.getOrders)
 router.get('/order-details',userAuth,orderController.getOrderDetails)
+router.post('/return-request',userAuth,orderController.returnRequest)
 router.get('/cancel-order',userAuth,orderController.getOrderCancel)
 router.get('/download-invoice',userAuth,orderController.downloadInvoice)
 router.post('/apply-coupon',userAuth,orderController.applyCoupon)
@@ -107,6 +108,7 @@ router.get('/addtoWishlist',userAuth,wishlistController.addToWishlist)
 router.get('/wishlist',userAuth,wishlistController.getWishlist)
 router.delete('/removeFromWishlist',userAuth,wishlistController.removeWishlist)
 
+router.get('/coupons',userAuth,orderController.getCoupons)
 
 router.get('/wallet',userAuth, walletController.loadWallet);
 router.post('/create-wallet',userAuth,walletController.createWallet)

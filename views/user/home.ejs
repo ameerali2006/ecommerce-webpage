@@ -374,7 +374,7 @@
                                         </div>
                                         <%if(products[i].quantity>0){%>
                                         <div class="product-action-1 show">
-                                            <a aria-label="Add To Cart" class="action-btn hover-up" href="/addToCart?id=<%=products[i]._id%>"><i class="fi-rs-shopping-bag-add"></i></a>
+                                            <a aria-label="Add To Cart" class="action-btn hover-up" onclick="addtocart('<%=products[i]._id%>')"><i class="fi-rs-shopping-bag-add"></i></a>
                                         </div>
                                         <%}else{%>
                                             <span class="tex-danger">
@@ -1654,6 +1654,23 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        async function addtocart(id) {
+            console.log('ajshdg');
+            const quantity = 1; // Fixed quantity; you can modify this based on your requirements.
+
+            try {
+                const response = await fetch(`/addToCart?id=${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json', // Inform server that the body is JSON
+                    },
+                    body: JSON.stringify({ quantity }), // Send data as a JSON string
+                });
+            }catch(error){
+                console.error('Network error:', error);
+                alert('Something went wrong. Please try again.');
+            }
+        }    
         function removeFromWishlist(productId) {
         fetch(`/removeFromWishlist?id=${productId}`, { method: 'DELETE' })
             .then(response => response.json())
@@ -1669,8 +1686,8 @@
                 }
             })
             .catch(error => console.error('Error:', error));
-    }
-    function wishlist(productId){
+        }
+        function wishlist(productId){
             if (!productId) {
                 Swal.fire({
                     icon: 'warning',
@@ -1708,7 +1725,7 @@
                         text: 'Something went wrong. Please try again later.',
                     });
                 });
-    }
+        }
         
  
         // Method 2: Using jQuery

@@ -32,6 +32,7 @@ const search=async (req,res)=>{
 
         }
         searchItems.productName={$regex:query,$options:'i'}
+        searchItems.isBlock=false
         const results = await Product.find(searchItems)
         let wishlistProductIds = [];
         if (user) {
@@ -358,12 +359,20 @@ const logout=async (req,res)=>{
 const getProductDetails= async (req,res)=>{
     try {
         const id=req.query.id;
+        const user=req.session.user
         console.log(id);
         const productData=await Product.findOne({_id:id})
         const recProducts=await Product.find({category:productData.category,_id:{$ne:productData.id}}).limit(4)
         if(!productData){
             console.log('not founded');
             return res.status(404).redirect('/admin/pageerror')
+        }
+        let wishlistProductIds = [];
+        if (user) {
+            const wishlist = await Wishlist.findOne({ userId: user }, { 'products.productId': 1, _id: 0 });
+            wishlistProductIds = wishlist ? wishlist.products.map(item => item.productId.toString()) : [];
+            return res.render('product-details',{data:productData,recData:recProducts,wishlistProductIds})
+
         }
         res.render('product-details',{data:productData,recData:recProducts})
     } catch (error) {
@@ -454,6 +463,7 @@ const getAllProduct = async (req, res) => {
             const wishlist = await Wishlist.findOne({ userId: user }, { 'products.productId': 1, _id: 0 });
             wishlistProductIds = wishlist ? wishlist.products.map(item => item.productId.toString()) : [];
         }
+        console.log(productData);
 
         res.render('shop', {
             user,
@@ -469,25 +479,60 @@ const getAllProduct = async (req, res) => {
     }
 };
 
-const getFilterData=async (req, res) => {
-    const { category, minPrice, maxPrice } = req.query;
-
-    let query = {};
-    if (category) query.category = category;
-    if (minPrice && maxPrice) {
-        query.salePrice = { $gte: parseInt(minPrice), $lte: parseInt(maxPrice) };
-    }
+const  getFilterData=async (req, res) => {
+    const { category = 'all', search = '', sort = 'default' } = req.query;
 
     try {
-        const products = await Product.find(query).populate('category','name');
-        const priceRanges = {
-            min: await Product.find().sort({ salePrice: 1 }).limit(1).then(d => d[0]?.salePrice || 0),
-            max: await Product.find().sort({ salePrice: -1 }).limit(1).then(d => d[0]?.salePrice || 0),
-        };
+        const categoryId=await Category.findOne({name:category})
+        // Build a query object
+        const query = category === 'all' ? {} : { category:categoryId._id };
+        
 
-        res.json({ products, priceRanges });
+        // Add search filter to the query
+        if (search) {
+            query.productName = { $regex: search, $options: 'i' }; // Case-insensitive search
+        }
+        query.isBlock=false;
+
+        // Determine the sort order
+        let sortCriteria = {};
+        switch (sort) {
+            
+            case 'price-low':
+                sortCriteria.salePrice = 1; // Ascending
+                break;
+            case 'price-high':
+                sortCriteria.salePrice = -1; // Descending
+                break;
+            
+            case 'az':
+                sortCriteria.productName = 1; // Alphabetical A-Z
+                break;
+            case 'za':
+                sortCriteria.productName = -1; // Alphabetical Z-A
+                break;
+            case 'new':
+                sortCriteria.createdAt = -1; // Newest first
+                break;
+            default:
+                sortCriteria = {}; // Default sorting (no specific order)
+        }
+
+        // Fetch products with filtering and sorting applied
+        const products = await Product.find(query).sort(sortCriteria);
+
+        // Send the filtered and sorted products as JSON
+        res.json({
+            success: true,
+            products, 
+        });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch products' });
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'An error occurred while fetching products',
+            error: error.message,
+        });
     }
 }
 

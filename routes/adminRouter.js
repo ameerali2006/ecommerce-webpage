@@ -64,7 +64,10 @@ router.post('/deleteImage',adminAuth,productController.deleteSingleImage);
 // order Manegement
 router.get('/allOrders',orderController.getAllorders);
 router.post('/update-order-status', orderController.updateOrderStatus);
-
+router.get('/getReturnRequest',adminAuth,orderController.getReturnPage)
+router.post('/returnDataUpdate',adminAuth,orderController.returnRequest);
+router.get('/salesReportPDF',orderController.pdfGenerate)
+router.get('/salesReportExcel',orderController.excelGenerate)
 
 
 // coupon manegement 

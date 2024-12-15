@@ -13,48 +13,56 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="col-lg-12">
-                        <a class="shop-badge rounded-pill alert-successgle" href="#">
-                            <span class="fi-rs-badge rounded-pill alert-success5"></span>
+                        <a class="shop-filter-toogle" href="#">
+                            <span class="fi-rs-filter mr-5"></span>
                             Filters
                             <i class="fi-rs-angle-small-down angle-down"></i>
                             <i class="fi-rs-angle-small-up angle-up"></i>
                         </a>
                         <div class="shop-product-fillter-header">
-                            <div class="row">
-                                <!-- Category Filter -->
+                            <div class="row align-items-center">
+                                <!-- Categories Dropdown -->
                                 <div class="col-lg-3 col-md-4 mb-lg-0 mb-md-5 mb-sm-5">
                                     <h5 class="mb-20">Categories</h5>
-                                    <ul class="categor-list" id="categoryFilter">
-                                        <li class="cat-item text-muted">
-                                            <button data-category="" class="badge rounded-pill alert-success">All Categories</button>
-                                        </li>
-                                        <% categories.forEach(category => { %>
-                                            <li class="cat-item text-muted">
-                                                <button data-category="<%= category._id %>" class="badge rounded-pill alert-success"><%= category.name %></button>
-                                            </li>
-                                        <% }); %>
-                                    </ul>
+                                    <div class="dropdown">
+                                        <select class="form-select" id="category">
+                                            <option value="all">All Categories</option>
+                                            <%categories.forEach((cat)=>{%>
+                                                <option value="<%=cat.name%>"><%=cat.name%></option>
+
+                                            <%})%>
+                                            
+                                        </select>
+                                    </div>
                                 </div>
                             
-                                <!-- Price Filter -->
+                                <!-- Search Bar -->
                                 <div class="col-lg-3 col-md-4 mb-lg-0 mb-md-5 mb-sm-5">
-                                    <h5 class="mb-20">Price Range</h5>
-                                    <ul class="categor-list" id="priceFilter">
-                                        <li class="cat-item text-muted">
-                                            <button data-min="0" data-max="1000" class="badge rounded-pill alert-success">0.00 - 1000.00</button>
-                                        </li>
-                                        <li class="cat-item text-muted">
-                                            <button data-min="1000" data-max="2000" class="badge rounded-pill alert-success">1000.00 - 2000.00</button>
-                                        </li>
-                                        <li class="cat-item text-muted">
-                                            <button data-min="2000" data-max="3000" class="badge rounded-pill alert-success">2000.00 - 3000.00</button>
-                                        </li>
-                                    </ul>
+                                    <h5 class="mb-20">Search</h5>
+                                    <div class="search-bar">
+                                        <input type="text" id="search" class="form-control" placeholder="Search products..." />
+                                    </div>
+                                </div>
+                            
+                                <!-- Sort Dropdown -->
+                                <div class="col-lg-3 col-md-4 mb-lg-0 mb-md-5 mb-sm-5">
+                                    <h5 class="mb-20">Sort By</h5>
+                                    <div class="sort-dropdown">
+                                        <select class="form-select" id="sort">
+                                            <option value="default">Default</option>
+                                            
+                                            <option value="price-low">Price: Low to High</option>
+                                            <option value="price-high">Price: High to Low</option>
+                                           
+                                            <option value="new">New Arrivals</option>
+                                            <option value="az">Name: A to Z</option>
+                                            <option value="za">Name: Z to A</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             
                         </div>
-                        
                     </div>
                     
                     <div class="container">
@@ -124,7 +132,7 @@
                     </div>
                     <!--pagination-->
                     
-                    <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
+                    <!-- <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
                         <nav aria-label="Page navigation">
                             <ul class="pagination">
                                 <% if (currentPage > 1) { %>
@@ -149,7 +157,7 @@
                             </ul>
                         </nav>
                     </div>
-                    
+                     -->
                 </div>
             </div>
         </div>
@@ -160,26 +168,131 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-    const categoryFilter = document.getElementById('categoryFilter');
-    const priceFilter = document.getElementById('priceFilter');
-    const productList = document.getElementById('productList');
+    async function addtocart(id) {
+            console.log('ajshdgj');
+            const quantity = 1; // Fixed quantity; you can modify this based on your requirements.
 
-    let selectedCategory = '';
-    let minPrice = '';
-    let maxPrice = '';
+            try {
+                const response = await fetch(`/addToCart?id=${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json', // Inform server that the body is JSON
+                    },
+                    body: JSON.stringify({ quantity }), // Send data as a JSON string
+                });
+            }catch(error){
+                console.error('Network error:', error);
+                alert('Something went wrong. Please try again.');
+            }
+        }    
+    // document.addEventListener('DOMContentLoaded', () => {
+    // const categoryFilter = document.getElementById('categoryFilter');
+    // const priceFilter = document.getElementById('priceFilter');
+    // const productList = document.getElementById('productList');
 
-    const fetchData = async () => {
+    // let selectedCategory = '';
+    // let minPrice = '';
+    // let maxPrice = '';
+
+    // const fetchData = async () => {
+    //     try {
+    //         const response = await fetch(`/getFilteredData?category=${selectedCategory}&minPrice=${minPrice}&maxPrice=${maxPrice}`);
+    //         const data = await response.json();
+    //         console.log(data);
+
+    //         // Update Product List
+    //         productList.innerHTML = '';
+    //         data.products.forEach(product => {
+    //             productList.innerHTML += `
+    //                 <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+    //                                     <div class="product-cart-wrap mb-30">
+    //                                         <div class="product-img-action-wrap">
+    //                                             <div class="product-img product-img-zoom">
+    //                                                 <a href="/productDetails?id=${product._id}">
+    //                                                     <img class="default-img" src="/uploads/re-image/${product.productImage[0]}" alt="${product.productImage[0]}">
+    //                                                     <!-- <img class="hover-img" src="evara-frontend/assets/imgs/shop/product-1-2.jpg" alt=""> -->
+    //                                                 </a>
+    //                                             </div>
+                                                
+                                                
+    //                                         </div>
+    //                                         <div class="product-content-wrap">
+    //                                             <div class="product-category">
+    //                                                 <a href="shop-grid-right.html">${product.category.name}</a>
+    //                                             </div>
+    //                                             <h2>${product.productName}</h2>
+    //                                             <div class="rating-result" title="90%">
+    //                                                 <span>
+    //                                                     <span>${product.productOffer}</span>
+    //                                                 </span>
+    //                                             </div>
+    //                                             <div class="product-price">
+    //                                                 <span>₹${product.salePrice} </span>
+    //                                                 <span class="old-price">₹${product.regularPrice} </span>
+    //                                             </div>
+                                                
+    //                                             <div class="product-action-1 show">
+    //                                                 <a aria-label="Add To Cart" class="action-btn hover-up" href="/addToCart?id=${product._id}"><i class="fi-rs-shopping-bag-add"></i></a>
+    //                                             </div>
+    //                                         </div>
+    //                                     </div>
+    //                                 </div>
+    //             `;
+    //         });
+    //     } catch (error) {
+    //         console.error('Error fetching data:', error);
+    //     }
+    // };
+
+    // // Handle Category Filter
+    // categoryFilter.addEventListener('click', (event) => {
+    //     if (event.target.classList.contains('badge')) {
+    //         selectedCategory = event.target.getAttribute('data-category');
+    //         fetchData();
+    //     }
+    // });
+
+    // // Handle Price Filter
+    // priceFilter.addEventListener('click', (event) => {
+    //     if (event.target.classList.contains('badge')) {
+    //         minPrice = event.target.getAttribute('data-min');
+    //         maxPrice = event.target.getAttribute('data-max');
+    //         fetchData();
+    //     }
+    // });
+    // });
+
+        // Function to fetch and update products dynamically
+    async function updateProducts() {
+        const category = document.getElementById('category').value;
+        const search = document.getElementById('search').value;
+        const sort = document.getElementById('sort').value;
+
+        const query = `?category=${category}&search=${search}&sort=${sort}`;
+
         try {
-            const response = await fetch(`/getFilteredData?category=${selectedCategory}&minPrice=${minPrice}&maxPrice=${maxPrice}`);
+            const response = await fetch(`/getFilteredData${query}`);
             const data = await response.json();
-            console.log(data);
 
-            // Update Product List
-            productList.innerHTML = '';
-            data.products.forEach(product => {
-                productList.innerHTML += `
-                    <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+            if (data.success) {
+                renderProducts(data.products);
+                console.log(data.products);
+            } else {
+                console.error('Error:', data.message);
+            }
+        } catch (error) {
+            console.error('Fetch error:', error);
+        }
+    }
+
+    // Function to render products dynamically
+    function renderProducts(products) {
+        const productList = document.getElementById('productList');
+        productList.innerHTML = '';
+
+        products.forEach(product => {
+            const productCard = `
+                <div class="col-lg-3 col-md-4 col-12 col-sm-6">
                                         <div class="product-cart-wrap mb-30">
                                             <div class="product-img-action-wrap">
                                                 <div class="product-img product-img-zoom">
@@ -187,6 +300,15 @@
                                                         <img class="default-img" src="/uploads/re-image/${product.productImage[0]}" alt="${product.productImage[0]}">
                                                         <!-- <img class="hover-img" src="evara-frontend/assets/imgs/shop/product-1-2.jpg" alt=""> -->
                                                     </a>
+                                                </div>
+                                                <div class="product-action-1" >
+                                                    <% const isInWishlist = wishlistProductIds.includes(products[i]._id.toString()); %>
+                                                    <%if(!isInWishlist){%>
+                                                    <a aria-label="Add To Wishlist" class="action-btn hover-up" onclick="wishlist('<%=products[i]._id%>')"><i class="fi-rs-heart"></i></a>
+                                                    <%}else{%>
+
+                                                    <a aria-label="Remove From Wishlist" href="" class="action-btn hover-up" onclick="removeFromWishlist('<%=products[i]._id%>')"><i  class="fi-rs-heart-broken"></i></a>
+                                                    <%}%>
                                                 </div>
                                                 
                                                 
@@ -207,35 +329,27 @@
                                                 </div>
                                                 
                                                 <div class="product-action-1 show">
-                                                    <a aria-label="Add To Cart" class="action-btn hover-up" href="/addToCart?id=${product._id}"><i class="fi-rs-shopping-bag-add"></i></a>
+                                                    <a aria-label="Add To Cart" class="action-btn hover-up" onClick="addtocart(${product._id})"><i class="fi-rs-shopping-bag-add"></i></a>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                `;
-            });
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
-    };
 
-    // Handle Category Filter
-    categoryFilter.addEventListener('click', (event) => {
-        if (event.target.classList.contains('badge')) {
-            selectedCategory = event.target.getAttribute('data-category');
-            fetchData();
-        }
-    });
 
-    // Handle Price Filter
-    priceFilter.addEventListener('click', (event) => {
-        if (event.target.classList.contains('badge')) {
-            minPrice = event.target.getAttribute('data-min');
-            maxPrice = event.target.getAttribute('data-max');
-            fetchData();
-        }
-    });
-});
+            
+            `;
+            productList.innerHTML += productCard;
+        });
+    }
+
+    // Add event listeners to inputs
+    document.getElementById('category').addEventListener('change', updateProducts);
+    document.getElementById('search').addEventListener('input', updateProducts);
+    document.getElementById('sort').addEventListener('change', updateProducts);
+
+    // Initial fetch to populate products
+    updateProducts();
+
 
     function removeFromWishlist(productId) {
         fetch(`/removeFromWishlist?id=${productId}`, { method: 'DELETE' })

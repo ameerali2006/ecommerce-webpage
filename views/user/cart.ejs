@@ -256,14 +256,13 @@
                             
                         <%}%>
                     </div>
-                    <div class="cart-action text-end">
+                    <br>
+                   
+
+                    <div class="row mb-50 " >
+                        <%if(products.length!=0){%>
                         
-                        <a class="btn " href="/"><i class="fi-rs-shopping-bag mr-10"></i>Continue Shopping</a>
-                    </div>
-                    <div class="divider center_icon mt-50 mb-50"><i class="fi-rs-fingerprint"></i></div>
-                    <div class="row mb-50">
-                        
-                        <div class="col-lg-6 col-md-12">
+                        <div class="col-lg-6 col-md-12" >
                             <div class="border p-md-4 p-30 border-radius cart-totals">
                                 <div class="heading_s1 mb-3">
                                     <h4>Cart Totals</h4>
@@ -280,12 +279,15 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <%if(products.length!=0){%>
+                                
                                 <a href="/getCheckOut" class="btn "> <i class="fi-rs-box-alt mr-10"></i> Proceed To CheckOut</a>
-                                <%}%>
+                                
                             </div>
                         </div>
+                        <%}%>
                     </div>
+                    <div class="divider center_icon mt-50 mb-50"><i class="fi-rs-fingerprint"></i></div>
+                   
                 </div>
             </div>
         </div>
