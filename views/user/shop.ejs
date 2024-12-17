@@ -301,15 +301,7 @@
                                                         <!-- <img class="hover-img" src="evara-frontend/assets/imgs/shop/product-1-2.jpg" alt=""> -->
                                                     </a>
                                                 </div>
-                                                <div class="product-action-1" >
-                                                    <% const isInWishlist = wishlistProductIds.includes(products[i]._id.toString()); %>
-                                                    <%if(!isInWishlist){%>
-                                                    <a aria-label="Add To Wishlist" class="action-btn hover-up" onclick="wishlist('<%=products[i]._id%>')"><i class="fi-rs-heart"></i></a>
-                                                    <%}else{%>
-
-                                                    <a aria-label="Remove From Wishlist" href="" class="action-btn hover-up" onclick="removeFromWishlist('<%=products[i]._id%>')"><i  class="fi-rs-heart-broken"></i></a>
-                                                    <%}%>
-                                                </div>
+                                                
                                                 
                                                 
                                             </div>

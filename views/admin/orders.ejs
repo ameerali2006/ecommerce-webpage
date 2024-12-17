@@ -178,7 +178,8 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showAlert('success', 'Order Status Updated', 'The order status has been updated successfully!');
+                showAlert('success', 'Order Status Updated', 'The order status has been updated successfully!')
+                
                 
                 // Update badge styling
                 const selectElement = document.querySelector(`select[data-order-id="${orderId}"]`);
@@ -186,6 +187,7 @@
                     selectElement.className = ''; // Reset existing classes
                     selectElement.classList.add('badge', 'rounded-pill', `status-${newStatus.toLowerCase().replace(/ /g, '-')}`);
                 }
+               window.location.reload() 
             } else {
                 showAlert('error', 'Update Failed', 'Failed to update order status. Please try again.', '#d33', 'Close');
             }

@@ -42,7 +42,7 @@ const addToCart = async (req, res) => {
                 // Update existing product in cart
                 const existingQuantity = cart.items[productIndex].quantity;
 
-                if (productData.quantity < existingQuantity + qty) {
+                if (productData.quantity < existingQuantity + qty ||(existingQuantity+qty)>5) {
                     console.log(
                         `Not enough stock to add ${qty} units for product ID ${productId}.`
                     );
@@ -230,10 +230,4 @@ module.exports={
     updateQuantity,
     checkStock,
 
-
-
-
-
-
-
-}
+} 

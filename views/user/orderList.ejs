@@ -54,13 +54,13 @@
                                         <tr>
                                             <td>#<%= order.orderId %></td>
                                             <td><%= order.createdOn.toLocaleDateString() %></td>
-                                            <td><span class="badge bg-<%= order.status === 'Cancelled' ? 'danger' : (order.status === 'Delivered' ? 'success' : 'warning') %>">
+                                            <td><span class="badge bg-<%= order.status === 'Cancelled' ? 'danger' : (order.status === 'Delivered' ? 'success' : (order.status === 'Returned' ? 'primary' : 'warning')) %>">
                                                 <%= order.status %></span></td>
                                             <td>₹<%= order.finalAmount.toLocaleString() %></td>
                                             <td>
                                                 <a href="/order-details?id=<%= order._id %>" class="btn btn-sm btn-success me-2">View Details</a>
                                                 <% let days = (Date.now() - new Date(order.createdOn)) / (1000 * 60 * 60 * 24); %>
-                                                <% if (order.status !== 'Cancelled' && order.status !== 'Delivered' && order.status !== 'Return Request') { %>
+                                                <% if (order.status !== 'Cancelled' && order.status !== 'Delivered' && order.status !== 'Return Request' &&order.status !== 'Returned') { %>
 
                                                     <button class="btn btn-sm btn-danger"
                                                         onclick="confirmCancelOrder('<%= order._id %>')">Cancel</button>

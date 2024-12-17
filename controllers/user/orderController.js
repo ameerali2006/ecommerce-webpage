@@ -137,6 +137,10 @@ const applyCoupon=async (req,res)=>{
         if(!coupon){
             return res.json({success:false,meassge:'invalid or expired coupon'})
         }
+        if(coupon.minimumPrice>totalPrice){
+            return res.json({ success: false, message: `minimum price to apply coupon ${coupon.minimumPrice}` });
+
+        }
         if(coupon.userId.includes(userId)){
             return res.json({ success: false, message: "coupon is already used by you" });
 
