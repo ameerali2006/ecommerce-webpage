@@ -13,18 +13,25 @@ const getCoupon= async (req,res)=>{
 }
 const addCoupon=async (req,res)=>{
     try {
-        const  { name, expireOn, offerPrice, minimumPrice }=req.body;
+        const  { name, expireOn, offerPrice, minimumPrice,maximumPrice }=req.body;
+        const exist=await Coupon.find({name})
+        if(exist&& exist.length!=0){
+            console.log(exist);
+            return res.status(400).json({message:'already added'})
+        }
         const newCoupon= new Coupon({
             name,
             expireOn,
             offerPrice,
-            minimumPrice
+            minimumPrice,
+            maximumPrice
             
         })
         await newCoupon.save()
-        res.redirect('/admin/add-coupon')
+        res.status(200).json({ message: 'Coupon added successfully!' });
     } catch (error) {
         console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
         
     }
 }

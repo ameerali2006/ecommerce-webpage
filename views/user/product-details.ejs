@@ -1,4 +1,35 @@
 <%-include('../../views/partials/user/header')%>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick-theme.css"/>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/slick-carousel/slick/slick.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
+<style>
+    .main-slider figure {
+    margin: 0;
+    text-align: center;
+}
+
+.slider-nav-thumbnails div {
+    margin: 5px;
+    cursor: pointer;
+}
+
+.slider-nav-thumbnails img {
+    width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.slick-prev, .slick-next {
+    background: #333;
+    color: #fff;
+    border-radius: 50%;
+}
+</style>
+
 
 <main class="main">
     <div class="page-header breadcrumb-wrap">
@@ -18,24 +49,27 @@
                         <div class="row mb-50">
                             <div class="col-md-6 col-sm-12 col-xs-12">
                                 <div class="detail-gallery">
-                                    <span class="zoom-icon"><i class="fi-rs-search"></i></span>
+                                    <span><i class="fi-rs-search"></i></span>
                                     <!-- MAIN SLIDES -->
-                                    <div class="product-image-slider">
-                                        <%for(let i=0;i<data.productImage.length;i++){%>
-                                        <figure >
-                                            <img src="uploads/re-image/<%=data.productImage[i]%>" alt="product image">
-                                        </figure>
-                                        <%}%>
+                                    <div class="main-slider">
+                                        <% for (let i = 0; i < data.productImage.length; i++) { %>
+                                            <figure>
+                                                <img src="uploads/re-image/<%= data.productImage[i] %>" 
+                                                     alt="product image" 
+                                                     class="zoom-img" 
+                                                     data-zoom-image="uploads/re-image/<%= data.productImage[i] %>">
+                                            </figure>
+                                        <% } %>
                                     </div>
                                     <!-- THUMBNAILS -->
                                     <div class="slider-nav-thumbnails pl-15 pr-15">
-                                        <%for(let i=0;i<data.productImage.length;i++){%>
-                                            <div><img src="uploads/re-image/<%=data.productImage[i]%>" alt="product image"></div>
-                                        <%}%>    
+                                        <% for (let i = 0; i < data.productImage.length; i++) { %>
+                                            <div><img src="uploads/re-image/<%= data.productImage[i] %>" alt="product image"></div>
+                                        <% } %>
                                     </div>
                                 </div>
-                                <!-- End Gallery -->
                             </div>
+                            
                             <div class="col-md-6 col-sm-12 col-xs-12">
                                 <div class="detail-info">
                                     <h2 class="title-detail"><%=data.productName%></h2>
@@ -488,6 +522,50 @@
 
 </main>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function () {
+        // Initialize the main slider
+        $('.main-slider').slick({
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            arrows: true,
+            fade: true,
+            asNavFor: '.slider-nav-thumbnails'
+        });
+    
+        // Initialize the thumbnail slider
+        $('.slider-nav-thumbnails').slick({
+            slidesToShow: 4,
+            slidesToScroll: 1,
+            asNavFor: '.main-slider',
+            dots: false,
+            centerMode: true,
+            focusOnSelect: true
+        });
+    
+        // Initialize zoom functionality for the first image
+        function initializeZoom() {
+            // Remove existing zoom instance
+            $('.zoom-img').removeData('elevateZoom').unbind();
+            $('.main-slider .slick-current img').elevateZoom({
+                zoomType: "lens",
+                lensShape: "round",
+                lensSize: 300,
+                scrollZoom: true
+            });
+        }
+    
+        // Call zoom initialization on document ready
+        initializeZoom();
+    
+        // Update zoom when slider changes
+        $('.main-slider').on('afterChange', function (event, slick, currentSlide) {
+            initializeZoom();
+        });
+    });
+    </script>
+    
+    
 <script>
     function removeFromWishlist(productId) {
         fetch(`/removeFromWishlist?id=${productId}`, { method: 'DELETE' })

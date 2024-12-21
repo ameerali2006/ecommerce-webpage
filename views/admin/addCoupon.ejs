@@ -107,22 +107,26 @@
 
 <div class="container">
   <h1>Add Coupon</h1>
-  <form action="/admin/add-coupon" method="POST">
+  <form id="couponForm">
     <div>
       <label for="name">Coupon Name</label>
       <input type="text" name="name" id="name" required />
     </div>
     <div>
       <label for="expireOn">Expiry Date</label>
-      <input type="date" name="expireOn" id="expireOn" required />
+      <input type="date" name="expireOn" id="expireOn" required /> 
     </div>
     <div>
-      <label for="offerPrice">Offer Price</label>
+      <label for="offerPrice">Offer percentage</label>
       <input type="number" name="offerPrice" id="offerPrice" required />
     </div>
     <div>
       <label for="minimumPrice">Minimum Price</label>
       <input type="number" name="minimumPrice" id="minimumPrice" required />
+    </div>
+    <div>
+      <label for="minimumPrice">Maximum Price</label>
+      <input type="number" name="maximumPrice" id="maximumPrice" required />
     </div>
     <button type="submit">Add Coupon</button>
   </form>
@@ -172,3 +176,87 @@
 
 <!-- FontAwesome CDN (if not already included in the header) -->
 <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+
+  
+  <script>
+    document.getElementById('couponForm').addEventListener('submit',async function (e) {
+      e.preventDefault(); // Prevent default form submission
+      const formData= new FormData(this)
+      
+      const data = Object.fromEntries(formData.entries()); // Convert FormData to an object
+
+      // Validate minimum and maximum prices
+      const minPrice = parseFloat(data.minimumPrice);
+      const maxPrice = parseFloat(data.maximumPrice);
+      const per=parseFloat(data.offerPrice);
+      console.log(per);
+
+      if (isNaN(minPrice) || isNaN(maxPrice)) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid Input',
+          text: 'Both minimum and maximum price must be valid numbers.',
+        });
+        return;
+      }
+
+      if (minPrice >= maxPrice) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Validation Error',
+          text: 'Minimum price must be less than maximum price.',
+        });
+        return;
+      }
+      if (per>100 || per<0) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Validation Error',
+          text: 'percentage must be between 0-100.',
+        });
+        return;
+      }
+      
+      try {
+        const response = await fetch('/admin/add-coupon', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          Swal.fire({
+            icon: 'success',
+            title: 'Coupon Added',
+            text: `Coupon added successfully: ${result.message}`,
+          })
+          .then(()=>window.location.reload())
+        } else {
+          const error = await response.json();
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'Failed to add coupon.',
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Unexpected Error',
+          text: 'An unexpected error occurred. Please try again later.',
+        });
+      }
+    });
+
+
+    
+
+    
+ 
+</script>
+
+

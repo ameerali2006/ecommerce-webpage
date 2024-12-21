@@ -131,7 +131,7 @@ const removeFromCart =async (req,res)=>{
             console.log('working3');
 
 
-            await cart.save(); 
+            await cart.save();    
         }
         res.redirect('/showCart')
     } catch (error) {
