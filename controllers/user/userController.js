@@ -65,6 +65,7 @@ const loadHomepage= async (req,res)=>{
             const wishlist = await Wishlist.findOne({ userId: user }, { 'products.productId': 1, _id: 0 });
             wishlistProductIds = wishlist ? wishlist.products.map(item => item.productId.toString()) : [];
         }
+        console.log(productData);
         
 
         if(user){
