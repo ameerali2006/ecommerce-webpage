@@ -433,7 +433,7 @@ const excelGenerate=async (req, res) => {
         
     }
 }
-const getOrderDetail= async (req,res)=>{
+const  getOrderDetail= async (req,res)=>{
     try {
         const orderId=req.query.id;
         const order= await Order.findById(orderId)
