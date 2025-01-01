@@ -68,6 +68,7 @@ router.get('/getReturnRequest',adminAuth,orderController.getReturnPage)
 router.post('/returnDataUpdate',adminAuth,orderController.returnRequest);
 router.get('/salesReportPDF',orderController.pdfGenerate)
 router.get('/salesReportExcel',orderController.excelGenerate)
+router.get('/orderDetails',orderController.getOrderDetail)
 
 
 // coupon manegement 
@@ -80,6 +81,7 @@ router.get('/stockManagement',stockController.getStocks)
 router.post('/update-stock',stockController.updateStock)
 
 router.get('/saleReport',orderController.getSaleReport)
+router.get('/filterSales',orderController.getSaleReportFilter)
 
 
 

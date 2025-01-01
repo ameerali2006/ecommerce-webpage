@@ -138,37 +138,9 @@
 
     <!-- Updated Pagination section -->
     <div class="pagination-area mt-15 mb-50">
-        <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-start">
-                <% if (currentPage > 1) { %>
-                    <li class="page-item">
-                        <a class="page-link" href="?page=1" aria-label="First">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                <% } %>
-                
-                <% 
-                let startPage = Math.max(1, currentPage - 2);
-                let endPage = Math.min(totalPages, startPage + 4);
-                if (endPage - startPage < 4) {
-                    startPage = Math.max(1, endPage - 4);
-                }
-                %>
-
-                <% for (let i = startPage; i <= endPage; i++) { %>
-                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                    </li>
-                <% } %>
-
-                <% if (currentPage < totalPages) { %>
-                    <li class="page-item">
-                        <a class="page-link" href="?page=<%= totalPages %>" aria-label="Last">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                <% } %>
+        <nav aria-label="Sales Pagination" class="mt-4">
+            <ul class="pagination justify-content-center" id="pagination">
+                <!-- Pagination buttons will be dynamically generated -->
             </ul>
         </nav>
     </div>
@@ -351,67 +323,79 @@
                 maximumFractionDigits: 0
             }).replace('INR', '₹');
         }
+        let currentPage = 1;
+        const itemsPerPage = 10;
 
-        function filterTable() {
-            const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
-            const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
+        function filterTable(page) {
+            const dateRangeSelect = document.getElementById('dateRangeSelect').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
 
-            console.log(startDate);
-            console.log(endDate);
+            const itemsPerPage = 10;
 
-            if (startDate) startDate.setHours(0, 0, 0, 0);
-            if (endDate) endDate.setHours(23, 59, 59, 999);
+            // Prepare the query parameters
+            const params = new URLSearchParams();
+            if (dateRangeSelect) params.append('dateRange', dateRangeSelect);
+            if (startDate) params.append('startDate', startDate);
+            if (endDate) params.append('endDate', endDate);
+            params.append('page', page);
+            params.append('limit', itemsPerPage);
 
-            let visibleRows = 0;
-            let totalSales = 0;
-            let totalDiscount = 0;
-            const uniqueCustomers = new Set();
+            // Fetch filtered data from the server
+            fetch(`/admin/filterSales?${params.toString()}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Update the table with the filtered data
+                    const tableBody = document.querySelector('#salesTable tbody');
+                    tableBody.innerHTML = ''; // Clear existing rows
 
-            for (const row of rows) {
-                const dateCell = row.cells[4].textContent.trim();
-                const rowDate = parseDate(dateCell);
-
-                if (!rowDate) continue;
-
-                let showRow = true;
-                if (startDate && rowDate < startDate) showRow = false;
-                if (endDate && rowDate > endDate) showRow = false;
-
-                row.style.display = showRow ? '' : 'none';
-
-                if (showRow) {
-                    visibleRows++;
-                    const finalAmount = parseFloat(row.cells[6].textContent.replace(/[₹,]/g, '')) || 0;
-                    const discount = parseFloat(row.cells[5].textContent.replace(/[₹,]/g, '')) || 0;
-                    const customer = row.cells[1].textContent.trim();
-
-                    totalSales += finalAmount;
-                    totalDiscount += discount;
-                    uniqueCustomers.add(customer);
-                }
-            }
-
-            const summaryCards = document.querySelectorAll('.card.card-body .text');
-            summaryCards.forEach(card => {
-                const title = card.querySelector('h6').textContent.trim();
-                const valueSpan = card.querySelector('span');
-
-                switch (title) {
-                    case 'Total Sales':
-                        valueSpan.textContent = formatCurrency(totalSales);
-                        break;
-                    case 'Total Orders':
-                        valueSpan.textContent = visibleRows;
-                        break;
-                    case 'Total Discount':
-                        valueSpan.textContent = formatCurrency(totalDiscount);
-                        break;
-                    case 'Total Customers':
-                        valueSpan.textContent = uniqueCustomers.size;
-                        break;
-                }
-            });
+                    data.orders.forEach((order, index) => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${index +1+ (page-1)*10}</td>
+                            <td>${order.user.name}</td>
+                            <td>
+                                <ul>${order.orderedItems.map(item => `<li>${item.product.productName}</li>`).join('')}</ul>
+                            </td>
+                            <td>
+                                <ul>${order.orderedItems.map(item => `<li>${item.quantity}</li>`).join('')}</ul>
+                            </td>
+                            <td>${new Date(order.createdOn).toLocaleDateString()}</td>
+                            <td>₹${order.discount.toLocaleString()}</td>
+                            <td>₹${order.finalAmount.toLocaleString()}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                    updatePagination(data.totalPages, page);
+                })
+                .catch(error => {
+                    console.error('Error fetching filtered data:', error);
+                    alert('Failed to apply filters. Please try again.');
+                });
         }
+
+        function updatePagination(totalPages, currentPage) {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = ''; // Clear existing pagination
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageItem = document.createElement('li');
+                pageItem.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                const button = document.createElement('button');
+                button.className = 'page-link';
+                button.textContent = i;
+                button.dataset.page = i; // Store the page number in a data attribute
+
+                button.addEventListener('click', () => {
+                    filterTable(i); // Call filterTable with the page number
+                });
+
+                pageItem.appendChild(button);
+                pagination.appendChild(pageItem);
+            }
+        }
+
+        
 
         function handleDateRangeSelection(e) {
             e.preventDefault();
@@ -446,7 +430,7 @@
                     endDateInput.value = '';
                     break;
             }
-            filterTable();
+            filterTable(1);
         }
 
 
@@ -454,7 +438,7 @@
         startDateInput.addEventListener('change', filterTable);
         endDateInput.addEventListener('change', filterTable);
 
-        filterTable();
+        filterTable(1);
     }
 
     document.addEventListener('DOMContentLoaded', initializeDateFilter);

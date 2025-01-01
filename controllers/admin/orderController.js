@@ -45,6 +45,7 @@ const updateOrderStatus = async (req, res) => {
 const getSaleReport=async (req,res)=>{
     try {
         const {page=1,limit=10,startDate,endDate}=req.query;
+        console.log(req.query); 
         const filter={};
 
         if(startDate||endDate){
@@ -59,10 +60,30 @@ const getSaleReport=async (req,res)=>{
         const totalDiscount=await Order.aggregate([{$match:filter},{$group:{_id:null,total:{$sum:'$discount'}}}]);
         const uniqueCustomers=await Order.distinct('user',filter);
         const totalOrders=await Order.countDocuments(filter);
-        
-
-        res.render('salesReport',{
+        console.log({
             orders,
+            totalSales:totalSales[0]?.total||0,
+            totalDiscount:totalDiscount[0]?.total || 0, 
+            uniqueCustomers: uniqueCustomers.length,
+            count: totalOrders,
+            currentPage: parseInt(page),
+            totalPages: Math.ceil(totalOrders / limit),
+            limit: parseInt(limit)
+        });
+        if(startDate||endDate){
+            console.log('sdisahlihAOIFUoifhewiudhlihdiuhdiouhjsaldkjhsalkja');
+            res.status(200).json({
+                orders,
+                totalSales:totalSales[0]?.total||0,
+                totalDiscount:totalDiscount[0]?.total || 0,
+                uniqueCustomers: uniqueCustomers.length,
+                count: totalOrders,
+                currentPage: parseInt(page),
+                totalPages: Math.ceil(totalOrders / limit),
+                limit: parseInt(limit)
+            })
+        }
+        res.render('salesReport',{orders,
             totalSales:totalSales[0]?.total||0,
             totalDiscount:totalDiscount[0]?.total || 0,
             uniqueCustomers: uniqueCustomers.length,
@@ -71,13 +92,52 @@ const getSaleReport=async (req,res)=>{
             totalPages: Math.ceil(totalOrders / limit),
             limit: parseInt(limit)
         })
+        
+
+
+        
 
 
 
 
     } catch (error) {
+        console.error(error);
         
     }
+}
+const getSaleReportFilter=async (req, res) => {
+    const { dateRange, startDate, endDate ,page=1,limit=10} = req.query;
+    const filter = {};
+
+    // Date range logic
+    if (startDate || endDate) {
+        filter.createdOn = {};
+        if (startDate) filter.createdOn.$gte = new Date(startDate);
+        if (endDate) filter.createdOn.$lte = new Date(endDate);
+    } else if (dateRange) {
+        const today = new Date();
+        if (dateRange === 'today') {
+            filter.createdOn = { $gte: new Date(today.setHours(0, 0, 0, 0)), $lt: new Date(today.setHours(23, 59, 59, 999)) };
+        } else if (dateRange === 'week') {
+            filter.createdOn = { $gte: new Date(today.setDate(today.getDate() - 7)) };
+        } else if (dateRange === 'month') {
+            filter.createdOn = { $gte: new Date(today.setMonth(today.getMonth() - 1)) };
+        } else if (dateRange === 'year') {
+            filter.createdOn = { $gte: new Date(today.setFullYear(today.getFullYear() - 1)) };
+        }
+    }
+
+    // Fetch orders based on the filter
+    const skip = (page - 1) * limit;
+    const orders = await Order.find(filter)
+        .populate('user orderedItems.product')
+        .skip(skip)
+        .limit(parseInt(limit));
+
+    const totalOrders = await Order.countDocuments(filter);
+    const totalPages = Math.ceil(totalOrders / limit);
+
+    res.json({ orders, totalPages });
 }
 
 const getReturnPage= async (req,res)=>{
@@ -373,6 +433,29 @@ const excelGenerate=async (req, res) => {
         
     }
 }
+const getOrderDetail= async (req,res)=>{
+    try {
+        const orderId=req.query.id;
+        const order= await Order.findById(orderId)
+        
+        const user=await User.findById(order.user);
+        
+        
+        const address=await Address.findOne({'address._id':order.address},{'address.$':1})
+        const products=await Promise.all(
+            order.orderedItems.map(async (item)=>{
+                return await Product.findOne({_id:item.product})
+            })
+        );
+        res.render('orderDetailsPage',{order,products,address:address.address[0],user})
+
+
+    } catch (error) {
+        console.error(error);
+        res.redirect('/pageNotFound')
+        
+    }
+}
 
 
 
@@ -386,7 +469,9 @@ module.exports={
     getSaleReport,
     returnRequest,
     pdfGenerate,
-    excelGenerate
+    excelGenerate,
+    getSaleReportFilter,
+    getOrderDetail
 
 }
 

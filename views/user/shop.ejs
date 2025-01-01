@@ -79,14 +79,14 @@
                             <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one">
                                 
                                 <div class="row product-grid-4 " id="productList">
-                                    <%for(let i=0;i<products.length;i++){%>
-                                    <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+                                    <!-- <%for(let i=0;i<products.length;i++){%>
+                                    <div class="col-lg-3 col-md-4 col-12 col-sm-6 >
                                         <div class="product-cart-wrap mb-30">
                                             <div class="product-img-action-wrap">
                                                 <div class="product-img product-img-zoom">
                                                     <a href="/productDetails?id=<%=products[i]._id%>">
                                                         <img class="default-img" src="/uploads/re-image/<%=products[i].productImage[0]%>" alt="<%=products[i].productImage[0]%>">
-                                                        <!-- <img class="hover-img" src="evara-frontend/assets/imgs/shop/product-1-2.jpg" alt=""> -->
+                                                        <img class="hover-img" src="evara-frontend/assets/imgs/shop/product-1-2.jpg" alt="">
                                                     </a>
                                                 </div>
                                                 <div class="product-action-1" >
@@ -122,7 +122,7 @@
                                         </div>
                                     </div>
                                     <%}%> 
-                                    
+                                     -->
                                 </div>
                                 <!--End product-grid-4-->
                             </div>
@@ -132,32 +132,13 @@
                     </div>
                     <!--pagination-->
                     
-                    <!-- <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
+                    <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
                         <nav aria-label="Page navigation">
-                            <ul class="pagination">
-                                <% if (currentPage > 1) { %>
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
-                                            <span aria-hidden="true">&laquo;</span>
-                                        </a>
-                                    </li>
-                                <% } %>
-                                <% for (let i = 1; i <= totalPages; i++) { %>
-                                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                                    </li>
-                                <% } %>
-                                <% if (currentPage < totalPages) { %>
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
-                                            <span aria-hidden="true">&raquo;</span>
-                                        </a>
-                                    </li>
-                                <% } %>
+                            <ul class="pagination" id="pagination">
+                                <!-- Pagination buttons will be generated dynamically -->
                             </ul>
                         </nav>
-                    </div>
-                     -->
+                    </div>  
                 </div>
             </div>
         </div>
@@ -263,12 +244,12 @@
     // });
 
         // Function to fetch and update products dynamically
-    async function updateProducts() {
+    async function updateProducts(page) {
         const category = document.getElementById('category').value;
         const search = document.getElementById('search').value;
         const sort = document.getElementById('sort').value;
 
-        const query = `?category=${category}&search=${search}&sort=${sort}`;
+        const query = `?category=${category}&search=${search}&sort=${sort}&page=${page}`;
 
         try {
             const response = await fetch(`/getFilteredData${query}`);
@@ -276,12 +257,35 @@
 
             if (data.success) {
                 renderProducts(data.products);
+                updatePagination(data.currentPage, data.totalPages);
                 console.log(data.products);
             } else {
                 console.error('Error:', data.message);
             }
         } catch (error) {
             console.error('Fetch error:', error);
+        }
+    }
+    async function updatePagination(currentPage, totalPages) {
+        const pagination = document.getElementById('pagination');
+        pagination.innerHTML = '';
+
+        if (currentPage > 1) {
+            pagination.innerHTML += `<li class="page-item">
+                <a class="page-link" onclick="updateProducts(${currentPage - 1})">&laquo;</a>
+            </li>`;
+        }
+
+        for (let i = 1; i <= totalPages; i++) {
+            pagination.innerHTML += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" onclick="updateProducts(${i})">${i}</a>
+            </li>`;
+        }
+
+        if (currentPage < totalPages) {
+            pagination.innerHTML += `<li class="page-item">
+                <a class="page-link" onclick="updateProducts(${currentPage + 1})">&raquo;</a>
+            </li>`;
         }
     }
 

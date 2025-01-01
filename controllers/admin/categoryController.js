@@ -37,7 +37,7 @@ const addCategory=async (req,res)=>{
     const {name,description}=req.body
     try {
         console.log('started')
-        const existingCategory=await Category.findOne({name});
+        const existingCategory=await Category.findOne({ name: new RegExp(`^${name}$`, 'i') });
         console.log(existingCategory)
         console.log('somthing')
         if(existingCategory){

@@ -115,6 +115,7 @@ router.post('/create-wallet',userAuth,walletController.createWallet)
 router.post('/verify-wallet',userAuth,walletController.verifyWallet)
 
 router.get('/allProducts',userController.getAllProduct)
+router.post('/wallet-payment',orderController.walletPayment);
 
 router.get('/getFilteredData',userController.getFilterData)
 router.get('/search',userController.search)

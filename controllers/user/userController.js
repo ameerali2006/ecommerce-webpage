@@ -53,7 +53,7 @@ const loadHomepage= async (req,res)=>{
         const categories=await Category.find({isListed:true})
          
 
-        let productData=await Product.find({isBlock:false,category:{$in:categories.map(category=>category._id)},quantity:{$gt:0}}).populate('category','name')
+        let productData=await Product.find({isBlock:false,category:{$in:categories.map(category=>category._id)},quantity:{$gt:0}}).populate('category','name').limit(8)
           
 
         productData.sort((a,b)=>new Date(b.createOn)-new Date(a.createOn))
@@ -481,13 +481,13 @@ const getAllProduct = async (req, res) => {
 };
 
 const  getFilterData=async (req, res) => {
-    const { category = 'all', search = '', sort = 'default' } = req.query;
+    const { category = 'all', search = '', sort = 'default', page = 1, limit = 8 } = req.query;
 
     try {
         const categoryId=await Category.findOne({name:category})
         // Build a query object
         const query = category === 'all' ? {} : { category:categoryId._id };
-        
+         
 
         // Add search filter to the query
         if (search) {
@@ -520,12 +520,17 @@ const  getFilterData=async (req, res) => {
         }
 
         // Fetch products with filtering and sorting applied
-        const products = await Product.find(query).sort(sortCriteria);
+        const products = await Product.find(query).sort(sortCriteria).skip((page - 1) * limit).limit(Number(limit));
+         
+        const totalProducts = await Product.countDocuments(query);
+        const totalPages = Math.ceil(totalProducts / limit);
 
         // Send the filtered and sorted products as JSON
         res.json({
             success: true,
             products, 
+            totalPages,
+            currentPage: Number(page)
         });
     } catch (error) {
         console.error(error);
