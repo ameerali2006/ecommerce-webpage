@@ -117,7 +117,13 @@ const getSaleReportFilter=async (req, res) => {
     } else if (dateRange) {
         const today = new Date();
         if (dateRange === 'today') {
-            filter.createdOn = { $gte: new Date(today.setHours(0, 0, 0, 0)), $lt: new Date(today.setHours(23, 59, 59, 999)) };
+            const startOfDay = new Date();
+            startOfDay.setHours(0, 0, 0, 0);
+
+            const endOfDay = new Date();
+            endOfDay.setHours(23, 59, 59, 999);
+
+            filter.createdOn = { $gte: startOfDay, $lt: endOfDay };
         } else if (dateRange === 'week') {
             filter.createdOn = { $gte: new Date(today.setDate(today.getDate() - 7)) };
         } else if (dateRange === 'month') {
@@ -129,7 +135,7 @@ const getSaleReportFilter=async (req, res) => {
 
     // Fetch orders based on the filter
     const skip = (page - 1) * limit;
-    const orders = await Order.find(filter)
+    const orders = await Order.find(filter).sort({createdOn:-1})
         .populate('user orderedItems.product')
         .skip(skip)
         .limit(parseInt(limit));
