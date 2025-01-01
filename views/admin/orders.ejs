@@ -46,8 +46,8 @@
                             </thead>
                             <tbody>
                                 <%for(let i=0;i<orders.length;i++){%>
-                                    <tr onclick="orderPage('<%=orders[i]._id%>')">
-                                        <td><%=orders[i].orderId%></td>
+                                    <tr >
+                                        <td onclick="orderPage('<%=orders[i]._id%>')"><%=orders[i].orderId%></td>
                                         <td><%=orders[i].createdOn.toLocaleDateString()%></td>
                                         <td><b><%= orders[i].user ? orders[i].user.username : 'User not found' %></b></td>
                                         <td>
@@ -159,7 +159,7 @@
         window.location.href=`/admin/orderDetails?id=${id}`
     }
 
-    
+
     
     // Reusable function for SweetAlert notifications
     function showAlert(icon, title, text, confirmButtonColor = '#3085d6', confirmButtonText = 'OK') {
